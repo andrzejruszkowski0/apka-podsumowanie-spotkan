@@ -7,6 +7,9 @@ venv/
 # Backend env
 backend/.env
 
+# Surowe odpowiedzi Gemini (debug promptów) — mogą zawierać treść spotkań
+backend/logs/
+
 # Node
 node_modules/
 frontend/dist/

@@ -1,9 +1,8 @@
 """Orkiestracja przetwarzania spotkania (SPEC.md §4): transkrypcja audio,
-sklejanie po part_index w backendzie, aktualizacja statusu.
+sklejanie po part_index w backendzie, ekstrakcja zadań/RACI/decyzji,
+aktualizacja statusu.
 
 Uruchamiane w tle przez FastAPI BackgroundTasks (POST /meetings/{id}/process).
-Ekstrakcja zadań/decyzji to etap 5 — tutaj przetwarzanie kończy się na
-status=analyzing, zgodnie z ETAPY.md (etap 4, punkt 7).
 """
 
 from __future__ import annotations
@@ -18,7 +17,13 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
 from app.db import SessionLocal
-from app.meetings.gemini_client import GeminiNotConfigured, TranscriptionError, transcribe_audio
+from app.meetings.extraction import run_extraction
+from app.meetings.gemini_client import (
+    ExtractionError,
+    GeminiNotConfigured,
+    TranscriptionError,
+    transcribe_audio,
+)
 from app.meetings.prompts import build_transcription_prompt
 from app.meetings.storage import StorageError, StorageNotConfigured, download_object
 from app.models import meeting, meeting_audio, person, transcript
@@ -81,7 +86,15 @@ def _run(db: Session, meeting_id: uuid.UUID) -> None:
         if row["source_type"] == "audio":
             _transcribe_audio_parts(db, meeting_id)
         _set_status(db, meeting_id, "analyzing")
-    except (StorageError, StorageNotConfigured, GeminiNotConfigured, TranscriptionError) as exc:
+        run_extraction(db, meeting_id)
+    except (
+        StorageError,
+        StorageNotConfigured,
+        GeminiNotConfigured,
+        TranscriptionError,
+        ExtractionError,
+        ValueError,
+    ) as exc:
         logger.warning("Przetwarzanie spotkania %s nie powiodło się: %s", meeting_id, exc)
         db.rollback()
         _set_status(db, meeting_id, "failed", str(exc))

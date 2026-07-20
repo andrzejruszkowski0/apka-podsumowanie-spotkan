@@ -1,15 +1,20 @@
 """SQLAlchemy Core table definitions.
 
 Tylko tabele faktycznie używane przez aplikację (na razie: auth, person, topic,
-meeting i pochodne). Reszta schematu z SPEC.md §2 istnieje w bazie (patrz
+meeting i pochodne, oraz task/task_raci/decision od etapu 5). Reszta schematu
+z SPEC.md §2 (notification_log, scheduler_run) istnieje w bazie (patrz
 migrations/) i doczeka się własnych definicji, gdy kolejne etapy zaczną z niej
 korzystać.
+
+task.quote, task.raci_raw i decision.quote/ai_confidence nie są w SPEC.md §2 —
+dodane migracją 0002, patrz komentarz tam.
 """
 
 from sqlalchemy import (
     ARRAY,
     BigInteger,
     Boolean,
+    CheckConstraint,
     Column,
     Date,
     DateTime,
@@ -17,12 +22,13 @@ from sqlalchemy import (
     Integer,
     LargeBinary,
     MetaData,
+    REAL,
     Table,
     Text,
     func,
     text,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 
 metadata = MetaData()
 
@@ -101,5 +107,50 @@ transcript = Table(
     Column("meeting_id", UUID(as_uuid=True), ForeignKey("meeting.id", ondelete="CASCADE"), nullable=False),
     Column("part_index", Integer, nullable=False),
     Column("content", Text, nullable=False),
+    Column("created_at", DateTime(timezone=True), nullable=False, server_default=func.now()),
+)
+
+task = Table(
+    "task",
+    metadata,
+    Column("id", UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid()),
+    Column("meeting_id", UUID(as_uuid=True), ForeignKey("meeting.id", ondelete="CASCADE"), nullable=False),
+    Column("topic_id", UUID(as_uuid=True), ForeignKey("topic.id")),
+    Column("description", Text, nullable=False),
+    Column("deadline", Date),
+    Column("status", Text, nullable=False, server_default=text("'open'")),
+    Column("done_at", DateTime(timezone=True)),
+    Column("ai_confidence", REAL),
+    Column("edited_by_user", Boolean, nullable=False, server_default=text("false")),
+    Column("sheets_row", Integer),
+    Column("quote", Text),
+    Column("raci_raw", JSONB),
+    Column("created_at", DateTime(timezone=True), nullable=False, server_default=func.now()),
+    CheckConstraint("status in ('open','done','cancelled')", name="task_status_check"),
+)
+
+task_raci = Table(
+    "task_raci",
+    metadata,
+    Column("task_id", UUID(as_uuid=True), ForeignKey("task.id", ondelete="CASCADE"), primary_key=True),
+    Column("person_id", UUID(as_uuid=True), ForeignKey("person.id"), primary_key=True),
+    Column("role", Text, primary_key=True),
+    CheckConstraint("role in ('R','A','C','I')", name="task_raci_role_check"),
+)
+
+decision = Table(
+    "decision",
+    metadata,
+    Column("id", UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid()),
+    Column("meeting_id", UUID(as_uuid=True), ForeignKey("meeting.id", ondelete="CASCADE"), nullable=False),
+    Column("topic_id", UUID(as_uuid=True), ForeignKey("topic.id")),
+    Column("statement", Text, nullable=False),
+    Column("decided_on", Date, nullable=False),
+    Column("decided_by", UUID(as_uuid=True), ForeignKey("person.id")),
+    Column("decided_by_raw", Text),
+    Column("category", Text),
+    Column("quote", Text),
+    Column("ai_confidence", REAL),
+    # embedding vector(768) — dodane w etapie 9, gdy pojawi się generowanie embeddingów.
     Column("created_at", DateTime(timezone=True), nullable=False, server_default=func.now()),
 )

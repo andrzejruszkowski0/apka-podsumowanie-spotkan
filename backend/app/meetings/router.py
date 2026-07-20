@@ -1,7 +1,7 @@
-"""Endpointy /meetings — upload i transkrypcja (SPEC.md §4, §9, etap 4).
+"""Endpointy /meetings — upload i transkrypcja (SPEC.md §4, §9, etap 4),
+ekstrakcja (etap 5) oraz ekran weryfikacji (SPEC.md §11, etap 6).
 
-Ekstrakcja zadań/decyzji (status awaiting_review i dalej) to etap 5 — poza
-zakresem tego modułu.
+Zapis do Sheets po zatwierdzeniu to etap 7 — poza zakresem tego modułu.
 """
 
 from __future__ import annotations
@@ -20,6 +20,7 @@ from sqlalchemy.orm import Session
 from app.auth.dependencies import CurrentUser, require_user
 from app.db import get_db
 from app.meetings.processing import run_processing
+from app.meetings.review import ReviewUpdateIn, any_unresolved, apply_review_update, get_review_payload
 from app.meetings.storage import StorageError, StorageNotConfigured, upload_object
 from app.models import meeting, meeting_audio, transcript
 
@@ -249,3 +250,51 @@ def list_meetings(
         query = query.where(meeting.c.topic_id == topic_id)
     rows = db.execute(query.order_by(meeting.c.created_at.desc())).mappings().all()
     return [_serialize_meeting(row) for row in rows]
+
+
+@router.get("/{meeting_id}/review")
+def get_review(
+    meeting_id: uuid.UUID, user: CurrentUser = Depends(require_user), db: Session = Depends(get_db)
+) -> dict:
+    _get_owned_meeting(db, meeting_id, user.id)
+    return get_review_payload(db, meeting_id)
+
+
+@router.put("/{meeting_id}/review")
+def put_review(
+    meeting_id: uuid.UUID,
+    body: ReviewUpdateIn,
+    user: CurrentUser = Depends(require_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    row = _get_owned_meeting(db, meeting_id, user.id)
+    if row["status"] != "awaiting_review":
+        raise HTTPException(
+            status_code=409,
+            detail=f"Spotkanie w stanie „{row['status']}” nie jest w trakcie weryfikacji.",
+        )
+    apply_review_update(db, meeting_id, body)
+    return get_review_payload(db, meeting_id)
+
+
+@router.post("/{meeting_id}/approve")
+def approve_meeting(
+    meeting_id: uuid.UUID, user: CurrentUser = Depends(require_user), db: Session = Depends(get_db)
+) -> dict:
+    row = _get_owned_meeting(db, meeting_id, user.id)
+    if row["status"] != "awaiting_review":
+        raise HTTPException(
+            status_code=409,
+            detail=f"Spotkanie w stanie „{row['status']}” nie może zostać zatwierdzone.",
+        )
+    if any_unresolved(db, meeting_id):
+        raise HTTPException(
+            status_code=400,
+            detail="Są nierozwiązane nazwiska w zadaniach lub decyzjach — popraw je przed zatwierdzeniem.",
+        )
+
+    db.execute(update(meeting).where(meeting.c.id == meeting_id).values(status="approved"))
+    db.commit()
+    return _serialize_meeting(
+        db.execute(select(meeting).where(meeting.c.id == meeting_id)).mappings().one()
+    )

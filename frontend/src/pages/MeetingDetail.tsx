@@ -20,18 +20,24 @@ type State =
   | { kind: "ok"; meeting: Meeting }
   | { kind: "error"; message: string };
 
-const POLLING_STATUSES = new Set(["uploaded", "transcribing"]);
+const POLLING_STATUSES = new Set(["uploaded", "transcribing", "analyzing"]);
 
 const STATUS_LABELS: Record<string, string> = {
   uploaded: "Wgrano, oczekuje na przetwarzanie",
   transcribing: "Transkrypcja w toku…",
-  analyzing: "Transkrypcja gotowa (analiza — etap 5)",
+  analyzing: "Ekstrakcja zadań i decyzji w toku…",
   awaiting_review: "Oczekuje na weryfikację",
   approved: "Zatwierdzone",
   failed: "Błąd",
 };
 
-function MeetingDetail({ meetingId }: { meetingId: string }) {
+function MeetingDetail({
+  meetingId,
+  navigate,
+}: {
+  meetingId: string;
+  navigate: (to: string) => void;
+}) {
   const [state, setState] = useState<State>({ kind: "loading" });
 
   useEffect(() => {
@@ -98,6 +104,18 @@ function MeetingDetail({ meetingId }: { meetingId: string }) {
         </p>
         {meeting.error_message && (
           <p className="mt-2 text-sm text-red-600">{meeting.error_message}</p>
+        )}
+        {meeting.status === "awaiting_review" && (
+          <a
+            href={`/meetings/${meeting.id}/review`}
+            onClick={(e) => {
+              e.preventDefault();
+              navigate(`/meetings/${meeting.id}/review`);
+            }}
+            className="mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700"
+          >
+            Przejdź do weryfikacji
+          </a>
         )}
       </div>
 

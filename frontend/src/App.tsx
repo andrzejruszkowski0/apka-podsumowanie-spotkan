@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Dashboard from "./pages/Dashboard";
 import MeetingDetail from "./pages/MeetingDetail";
+import Review from "./pages/Review";
 import Settings from "./pages/Settings";
 import Upload from "./pages/Upload";
 
@@ -56,15 +57,20 @@ function NavLink({
 
 function App() {
   const [path, navigate] = useRoute();
+  const reviewMatch = path.match(/^\/meetings\/([^/]+)\/review$/);
   const meetingMatch = path.match(/^\/meetings\/([^/]+)$/);
 
   let page: React.ReactNode;
+  let wide = false;
   if (path === "/settings") {
     page = <Settings />;
   } else if (path === "/upload") {
     page = <Upload onCreated={(id) => navigate(`/meetings/${id}`)} />;
+  } else if (reviewMatch) {
+    page = <Review meetingId={reviewMatch[1]} navigate={navigate} />;
+    wide = true;
   } else if (meetingMatch) {
-    page = <MeetingDetail meetingId={meetingMatch[1]} />;
+    page = <MeetingDetail meetingId={meetingMatch[1]} navigate={navigate} />;
   } else {
     page = <Dashboard navigate={navigate} />;
   }
@@ -82,7 +88,7 @@ function App() {
           Ustawienia
         </NavLink>
       </nav>
-      <div className="max-w-2xl mx-auto py-10 px-4">{page}</div>
+      <div className={(wide ? "max-w-4xl" : "max-w-2xl") + " mx-auto py-10 px-4"}>{page}</div>
     </div>
   );
 }
