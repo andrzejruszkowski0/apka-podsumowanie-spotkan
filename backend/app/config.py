@@ -18,6 +18,7 @@ class Settings(BaseSettings):
 
     # Gemini
     gemini_api_key: str | None = None
+    gemini_model: str = "gemini-flash-latest"
 
     # Aplikacja
     token_encryption_key: str | None = None
@@ -26,6 +27,7 @@ class Settings(BaseSettings):
     reminder_hour: int = 8
     reminder_days_ahead: int = 2
     frontend_origin: str = "http://localhost:5173"
+    supabase_audio_bucket: str = "meeting-audio"
 
 
 settings = Settings()

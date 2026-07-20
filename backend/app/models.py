@@ -1,16 +1,20 @@
 """SQLAlchemy Core table definitions.
 
-Tylko tabele faktycznie używane przez aplikację (na razie: auth, person, topic).
-Reszta schematu z SPEC.md §2 istnieje w bazie (patrz migrations/) i doczeka się
-własnych definicji, gdy kolejne etapy zaczną z niej korzystać.
+Tylko tabele faktycznie używane przez aplikację (na razie: auth, person, topic,
+meeting i pochodne). Reszta schematu z SPEC.md §2 istnieje w bazie (patrz
+migrations/) i doczeka się własnych definicji, gdy kolejne etapy zaczną z niej
+korzystać.
 """
 
 from sqlalchemy import (
     ARRAY,
+    BigInteger,
     Boolean,
     Column,
+    Date,
     DateTime,
     ForeignKey,
+    Integer,
     LargeBinary,
     MetaData,
     Table,
@@ -62,5 +66,40 @@ topic = Table(
     Column("name", Text, nullable=False, unique=True),
     Column("kind", Text, nullable=False),
     Column("notes", Text),
+    Column("created_at", DateTime(timezone=True), nullable=False, server_default=func.now()),
+)
+
+meeting = Table(
+    "meeting",
+    metadata,
+    Column("id", UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid()),
+    Column("user_id", UUID(as_uuid=True), ForeignKey("app_user.id"), nullable=False),
+    Column("topic_id", UUID(as_uuid=True), ForeignKey("topic.id")),
+    Column("title", Text, nullable=False),
+    Column("meeting_date", Date, nullable=False),
+    Column("source_type", Text, nullable=False),
+    Column("status", Text, nullable=False, server_default=text("'uploaded'")),
+    Column("error_message", Text),
+    Column("created_at", DateTime(timezone=True), nullable=False, server_default=func.now()),
+)
+
+meeting_audio = Table(
+    "meeting_audio",
+    metadata,
+    Column("id", UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid()),
+    Column("meeting_id", UUID(as_uuid=True), ForeignKey("meeting.id", ondelete="CASCADE"), nullable=False),
+    Column("storage_path", Text, nullable=False),
+    Column("part_index", Integer, nullable=False),
+    Column("duration_sec", Integer),
+    Column("bytes", BigInteger),
+)
+
+transcript = Table(
+    "transcript",
+    metadata,
+    Column("id", UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid()),
+    Column("meeting_id", UUID(as_uuid=True), ForeignKey("meeting.id", ondelete="CASCADE"), nullable=False),
+    Column("part_index", Integer, nullable=False),
+    Column("content", Text, nullable=False),
     Column("created_at", DateTime(timezone=True), nullable=False, server_default=func.now()),
 )

@@ -20,9 +20,34 @@ type AuthState =
   | { kind: "authenticated"; me: Me }
   | { kind: "error"; message: string };
 
-function Dashboard() {
+type MeetingSummary = {
+  id: string;
+  title: string;
+  meeting_date: string;
+  status: string;
+};
+
+type MeetingsState =
+  | { kind: "loading" }
+  | { kind: "ok"; meetings: MeetingSummary[] }
+  | { kind: "error"; message: string };
+
+function Dashboard({ navigate }: { navigate: (to: string) => void }) {
   const [health, setHealth] = useState<HealthState>({ kind: "loading" });
   const [auth, setAuth] = useState<AuthState>({ kind: "loading" });
+  const [meetings, setMeetings] = useState<MeetingsState>({ kind: "loading" });
+
+  useEffect(() => {
+    fetch("/meetings")
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data: MeetingSummary[] = await res.json();
+        setMeetings({ kind: "ok", meetings: data.slice(0, 10) });
+      })
+      .catch((err) =>
+        setMeetings({ kind: "error", message: String(err.message ?? err) }),
+      );
+  }, []);
 
   useEffect(() => {
     fetch("/health")
@@ -120,6 +145,51 @@ function Dashboard() {
               Wyloguj
             </button>
           </div>
+        )}
+      </div>
+
+      <div className="rounded-lg border border-gray-200 bg-white px-8 py-6 shadow-sm">
+        <h2 className="mb-3 font-medium text-gray-900">Ostatnie spotkania</h2>
+        {meetings.kind === "loading" && <p className="text-gray-500">Wczytywanie…</p>}
+        {meetings.kind === "error" && (
+          <p className="text-red-600">Błąd: {meetings.message}</p>
+        )}
+        {meetings.kind === "ok" && meetings.meetings.length === 0 && (
+          <p className="text-gray-500">
+            Brak spotkań —{" "}
+            <a
+              href="/upload"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate("/upload");
+              }}
+              className="text-blue-600 hover:underline"
+            >
+              dodaj pierwsze
+            </a>
+            .
+          </p>
+        )}
+        {meetings.kind === "ok" && meetings.meetings.length > 0 && (
+          <ul className="flex flex-col gap-2">
+            {meetings.meetings.map((m) => (
+              <li key={m.id}>
+                <a
+                  href={`/meetings/${m.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate(`/meetings/${m.id}`);
+                  }}
+                  className="flex items-center justify-between gap-4 text-sm hover:underline"
+                >
+                  <span className="text-gray-900">{m.title}</span>
+                  <span className="text-gray-500">
+                    {m.meeting_date} · {m.status}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
         )}
       </div>
     </div>

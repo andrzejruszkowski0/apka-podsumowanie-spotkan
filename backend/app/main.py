@@ -14,6 +14,7 @@ from app.auth.google_oauth import NeedsReauthError
 from app.auth.router import router as auth_router
 from app.config import settings
 from app.db import SessionLocal, engine
+from app.meetings.router import router as meetings_router
 from app.people.router import router as people_router
 from app.people.sync import sync_people_on_startup
 from app.topics import router as topics_router
@@ -60,6 +61,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(people_router)
 app.include_router(topics_router)
+app.include_router(meetings_router)
 
 
 @app.exception_handler(NeedsReauthError)
