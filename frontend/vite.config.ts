@@ -11,6 +11,14 @@ export default defineConfig({
         target: 'http://127.0.0.1:8000',
         changeOrigin: true,
       },
+      '/people': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
+      '/topics': {
+        target: 'http://127.0.0.1:8000',
+        changeOrigin: true,
+      },
     },
   },
 })

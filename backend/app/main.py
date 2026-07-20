@@ -1,5 +1,7 @@
 import logging
 import secrets
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -7,14 +9,29 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from starlette.middleware.sessions import SessionMiddleware
 
+from app.auth.accounts import get_owner_id
 from app.auth.google_oauth import NeedsReauthError
 from app.auth.router import router as auth_router
 from app.config import settings
-from app.db import engine
+from app.db import SessionLocal, engine
+from app.people.router import router as people_router
+from app.people.sync import sync_people_on_startup
+from app.topics import router as topics_router
 
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="Analiza spotkań")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    db = SessionLocal()
+    try:
+        sync_people_on_startup(db, get_owner_id(db))
+    finally:
+        db.close()
+    yield
+
+
+app = FastAPI(title="Analiza spotkań", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -41,6 +58,8 @@ app.add_middleware(
 )
 
 app.include_router(auth_router)
+app.include_router(people_router)
+app.include_router(topics_router)
 
 
 @app.exception_handler(NeedsReauthError)

@@ -14,6 +14,11 @@ from app.models import app_user, oauth_token
 from app.security.crypto import encrypt
 
 
+def get_owner_id(db: Session) -> uuid.UUID | None:
+    """Jedyny właściciel aplikacji (SPEC.md §0: jedna osoba) — None, jeśli nikt się jeszcze nie zalogował."""
+    return db.execute(select(app_user.c.id).order_by(app_user.c.created_at).limit(1)).scalar_one_or_none()
+
+
 def upsert_user(db: Session, identity: GoogleIdentity) -> uuid.UUID:
     stmt = pg_insert(app_user).values(
         google_sub=identity.sub,

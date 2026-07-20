@@ -1,128 +1,72 @@
 import { useCallback, useEffect, useState } from "react";
+import Dashboard from "./pages/Dashboard";
+import Settings from "./pages/Settings";
 
-type HealthState =
-  | { kind: "loading" }
-  | { kind: "ok"; status: string }
-  | { kind: "error"; message: string };
+// Router-lite: dwie strony na razie ("/", "/settings") nie uzasadniają
+// jeszcze dociągania react-router-dom. Rozbuduje się w kolejnych etapach
+// (§11 SPEC.md), gdy przybędzie więcej ekranów.
+function useRoute(): [string, (to: string) => void] {
+  const [path, setPath] = useState(() => window.location.pathname);
 
-type Me = {
-  id: string;
-  email: string;
-  display_name: string | null;
-  google_connected: boolean;
-  reauth_required: boolean;
-  access_token_expires_at: string | null;
-};
+  useEffect(() => {
+    const onPopState = () => setPath(window.location.pathname);
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
 
-type AuthState =
-  | { kind: "loading" }
-  | { kind: "anonymous" }
-  | { kind: "authenticated"; me: Me }
-  | { kind: "error"; message: string };
+  const navigate = useCallback((to: string) => {
+    window.history.pushState({}, "", to);
+    setPath(to);
+  }, []);
+
+  return [path, navigate];
+}
+
+function NavLink({
+  to,
+  path,
+  navigate,
+  children,
+}: {
+  to: string;
+  path: string;
+  navigate: (to: string) => void;
+  children: React.ReactNode;
+}) {
+  const active = path === to;
+  return (
+    <a
+      href={to}
+      onClick={(e) => {
+        e.preventDefault();
+        navigate(to);
+      }}
+      className={
+        active
+          ? "font-medium text-gray-900"
+          : "text-gray-500 hover:text-gray-900"
+      }
+    >
+      {children}
+    </a>
+  );
+}
 
 function App() {
-  const [health, setHealth] = useState<HealthState>({ kind: "loading" });
-  const [auth, setAuth] = useState<AuthState>({ kind: "loading" });
-
-  useEffect(() => {
-    fetch("/health")
-      .then((res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return res.json();
-      })
-      .then((data) => setHealth({ kind: "ok", status: data.status }))
-      .catch((err) =>
-        setHealth({ kind: "error", message: String(err.message ?? err) }),
-      );
-  }, []);
-
-  const loadMe = useCallback(() => {
-    fetch("/auth/me")
-      .then(async (res) => {
-        if (res.status === 401) {
-          setAuth({ kind: "anonymous" });
-          return;
-        }
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const me: Me = await res.json();
-        setAuth({ kind: "authenticated", me });
-      })
-      .catch((err) =>
-        setAuth({ kind: "error", message: String(err.message ?? err) }),
-      );
-  }, []);
-
-  useEffect(() => {
-    loadMe();
-  }, [loadMe]);
-
-  const logout = useCallback(() => {
-    fetch("/auth/logout", { method: "POST" }).finally(loadMe);
-  }, [loadMe]);
+  const [path, navigate] = useRoute();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="flex flex-col gap-4">
-        <div className="rounded-lg border border-gray-200 bg-white px-8 py-6 shadow-sm text-center">
-          <h1 className="text-xl font-medium text-gray-900 mb-2">
-            Analiza spotkań
-          </h1>
-          {health.kind === "loading" && (
-            <p className="text-gray-500">Sprawdzanie backendu…</p>
-          )}
-          {health.kind === "ok" && (
-            <p className="text-green-600 font-semibold">{health.status}</p>
-          )}
-          {health.kind === "error" && (
-            <p className="text-red-600">Błąd: {health.message}</p>
-          )}
-        </div>
-
-        <div className="rounded-lg border border-gray-200 bg-white px-8 py-6 shadow-sm text-center">
-          {auth.kind === "loading" && (
-            <p className="text-gray-500">Sprawdzanie sesji…</p>
-          )}
-          {auth.kind === "error" && (
-            <p className="text-red-600">Błąd: {auth.message}</p>
-          )}
-          {auth.kind === "anonymous" && (
-            <a
-              href="/auth/login"
-              className="inline-block rounded-md bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700"
-            >
-              Zaloguj się przez Google
-            </a>
-          )}
-          {auth.kind === "authenticated" && (
-            <div className="text-left">
-              <p className="text-gray-900">
-                Zalogowano jako{" "}
-                <span className="font-semibold">
-                  {auth.me.display_name ?? auth.me.email}
-                </span>
-              </p>
-              <p className="text-sm text-gray-500">{auth.me.email}</p>
-              <p className="text-sm mt-2">
-                Dostęp do Gmail/Sheets:{" "}
-                {auth.me.reauth_required ? (
-                  <span className="text-red-600 font-medium">
-                    wymaga ponownej zgody
-                  </span>
-                ) : auth.me.google_connected ? (
-                  <span className="text-green-600 font-medium">aktywny</span>
-                ) : (
-                  <span className="text-gray-500">nieznany</span>
-                )}
-              </p>
-              <button
-                onClick={logout}
-                className="mt-4 rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-100"
-              >
-                Wyloguj
-              </button>
-            </div>
-          )}
-        </div>
+    <div className="min-h-screen bg-gray-50">
+      <nav className="flex items-center gap-6 border-b border-gray-200 bg-white px-8 py-4">
+        <NavLink to="/" path={path} navigate={navigate}>
+          Dashboard
+        </NavLink>
+        <NavLink to="/settings" path={path} navigate={navigate}>
+          Ustawienia
+        </NavLink>
+      </nav>
+      <div className="max-w-2xl mx-auto py-10 px-4">
+        {path === "/settings" ? <Settings /> : <Dashboard />}
       </div>
     </div>
   );
