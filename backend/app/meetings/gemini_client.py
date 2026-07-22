@@ -54,6 +54,10 @@ class BriefingError(RuntimeError):
     pass
 
 
+class DraftError(RuntimeError):
+    pass
+
+
 def _client() -> genai.Client:
     if not settings.gemini_api_key:
         raise GeminiNotConfigured("GEMINI_API_KEY nie jest ustawiony w .env.")
@@ -168,4 +172,13 @@ def generate_briefing(prompt: str) -> str:
     response = client.models.generate_content(model=settings.gemini_model, contents=prompt)
     if not response.text:
         raise BriefingError("Gemini zwrócił pustą odpowiedź dla briefingu.")
+    return response.text
+
+
+def generate_draft(prompt: str) -> str:
+    """Szkic maila podsumowującego (SPEC.md §10.5, etap 10) — zwykły tekst, bez structured output."""
+    client = _client()
+    response = client.models.generate_content(model=settings.gemini_model, contents=prompt)
+    if not response.text:
+        raise DraftError("Gemini zwrócił pustą odpowiedź dla szkicu maila.")
     return response.text

@@ -1,6 +1,7 @@
 """Endpointy /meetings — upload i transkrypcja (SPEC.md §4, §9, etap 4),
-ekstrakcja (etap 5), ekran weryfikacji (SPEC.md §11, etap 6) oraz zapis
-zatwierdzonych zadań do Sheets (SPEC.md §6, etap 7).
+ekstrakcja (etap 5), ekran weryfikacji (SPEC.md §11, etap 6), zapis
+zatwierdzonych zadań do Sheets (SPEC.md §6, etap 7) oraz szablony maili
+podsumowujących (SPEC.md §10.5, etap 10).
 """
 
 from __future__ import annotations
@@ -21,10 +22,14 @@ from app.auth.dependencies import CurrentUser, require_user
 from app.auth.tokens import get_valid_access_token
 from app.db import get_db
 from app.decisions.embeddings import generate_missing_embeddings
+from app.meetings.draft import generate_draft_preview, send_draft
+from app.meetings.draft_prompts import Template
+from app.meetings.gemini_client import DraftError, GeminiNotConfigured
 from app.meetings.processing import run_processing
 from app.meetings.review import ReviewUpdateIn, any_unresolved, apply_review_update, get_review_payload
 from app.meetings.storage import StorageError, StorageNotConfigured, upload_object
 from app.models import meeting, meeting_audio, task, transcript
+from app.notifications.gmail_client import GmailApiError
 from app.tasks.sheets_client import SheetsApiError
 from app.tasks.sheets_sync import TasksSheetsNotConfigured, append_task_row, ensure_header
 
@@ -55,6 +60,18 @@ class MeetingIn(BaseModel):
 
 class TextIn(BaseModel):
     content: str
+
+
+class DraftIn(BaseModel):
+    template: Template
+
+
+class DraftSendIn(BaseModel):
+    template: Template
+    subject: str
+    body: str
+    to: str
+    cc: str | None = None
 
 
 def _serialize_meeting(row) -> dict:
@@ -334,3 +351,45 @@ def approve_meeting(
     return _serialize_meeting(
         db.execute(select(meeting).where(meeting.c.id == meeting_id)).mappings().one()
     )
+
+
+@router.post("/{meeting_id}/draft")
+def draft_meeting(
+    meeting_id: uuid.UUID,
+    body: DraftIn,
+    user: CurrentUser = Depends(require_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    _get_owned_meeting(db, meeting_id, user.id)
+    try:
+        return generate_draft_preview(db, meeting_id, body.template)
+    except (GeminiNotConfigured, DraftError) as exc:
+        raise HTTPException(status_code=400, detail=f"Generowanie szkicu nie powiodło się: {exc}") from exc
+
+
+@router.post("/{meeting_id}/draft/send")
+def send_draft_endpoint(
+    meeting_id: uuid.UUID,
+    body: DraftSendIn,
+    user: CurrentUser = Depends(require_user),
+    db: Session = Depends(get_db),
+) -> dict:
+    _get_owned_meeting(db, meeting_id, user.id)
+    to = body.to.strip()
+    if "@" not in to:
+        raise HTTPException(status_code=400, detail="Nieprawidłowy adres e-mail odbiorcy.")
+    cc = body.cc.strip() if body.cc and body.cc.strip() else None
+
+    access_token = get_valid_access_token(db, user.id)
+    try:
+        return send_draft(
+            db,
+            access_token=access_token,
+            meeting_id=meeting_id,
+            subject=body.subject,
+            body=body.body,
+            to=to,
+            cc=cc,
+        )
+    except GmailApiError as exc:
+        raise HTTPException(status_code=400, detail=f"Wysyłka szkicu nie powiodła się: {exc}") from exc
