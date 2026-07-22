@@ -17,6 +17,7 @@ from app.db import SessionLocal, engine
 from app.meetings.router import router as meetings_router
 from app.people.router import router as people_router
 from app.people.sync import sync_people_on_startup
+from app.tasks.router import router as tasks_router
 from app.topics import router as topics_router
 
 logger = logging.getLogger(__name__)
@@ -62,6 +63,7 @@ app.include_router(auth_router)
 app.include_router(people_router)
 app.include_router(topics_router)
 app.include_router(meetings_router)
+app.include_router(tasks_router)
 
 
 @app.exception_handler(NeedsReauthError)

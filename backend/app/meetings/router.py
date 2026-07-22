@@ -1,7 +1,6 @@
 """Endpointy /meetings — upload i transkrypcja (SPEC.md §4, §9, etap 4),
-ekstrakcja (etap 5) oraz ekran weryfikacji (SPEC.md §11, etap 6).
-
-Zapis do Sheets po zatwierdzeniu to etap 7 — poza zakresem tego modułu.
+ekstrakcja (etap 5), ekran weryfikacji (SPEC.md §11, etap 6) oraz zapis
+zatwierdzonych zadań do Sheets (SPEC.md §6, etap 7).
 """
 
 from __future__ import annotations
@@ -18,11 +17,14 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import CurrentUser, require_user
+from app.auth.tokens import get_valid_access_token
 from app.db import get_db
 from app.meetings.processing import run_processing
 from app.meetings.review import ReviewUpdateIn, any_unresolved, apply_review_update, get_review_payload
 from app.meetings.storage import StorageError, StorageNotConfigured, upload_object
-from app.models import meeting, meeting_audio, transcript
+from app.models import meeting, meeting_audio, task, transcript
+from app.tasks.sheets_client import SheetsApiError
+from app.tasks.sheets_sync import TasksSheetsNotConfigured, append_task_row, ensure_header
 
 router = APIRouter(prefix="/meetings", tags=["meetings"])
 
@@ -292,6 +294,27 @@ def approve_meeting(
             status_code=400,
             detail="Są nierozwiązane nazwiska w zadaniach lub decyzjach — popraw je przed zatwierdzeniem.",
         )
+
+    access_token = get_valid_access_token(db, user.id)
+    try:
+        ensure_header(access_token)
+        # sheets_row IS NULL: dopisz tylko to, co jeszcze nie trafiło do arkusza —
+        # ponowne kliknięcie „Zatwierdź” po wcześniejszym błędzie nie dubluje wierszy.
+        pending_ids = (
+            db.execute(
+                select(task.c.id).where(task.c.meeting_id == meeting_id, task.c.sheets_row.is_(None))
+            )
+            .scalars()
+            .all()
+        )
+        for task_id in pending_ids:
+            append_task_row(db, access_token, task_id)
+        db.commit()
+    except (TasksSheetsNotConfigured, SheetsApiError) as exc:
+        db.rollback()
+        raise HTTPException(
+            status_code=400, detail=f"Zapis zadań do Google Sheets nie powiódł się: {exc}"
+        ) from exc
 
     db.execute(update(meeting).where(meeting.c.id == meeting_id).values(status="approved"))
     db.commit()

@@ -3,6 +3,7 @@ import Dashboard from "./pages/Dashboard";
 import MeetingDetail from "./pages/MeetingDetail";
 import Review from "./pages/Review";
 import Settings from "./pages/Settings";
+import Tasks from "./pages/Tasks";
 import Upload from "./pages/Upload";
 
 // Router-lite: kilka stron na razie nie uzasadnia jeszcze dociągania
@@ -64,6 +65,9 @@ function App() {
   let wide = false;
   if (path === "/settings") {
     page = <Settings />;
+  } else if (path === "/tasks") {
+    page = <Tasks />;
+    wide = true;
   } else if (path === "/upload") {
     page = <Upload onCreated={(id) => navigate(`/meetings/${id}`)} />;
   } else if (reviewMatch) {
@@ -83,6 +87,9 @@ function App() {
         </NavLink>
         <NavLink to="/upload" path={path} navigate={navigate}>
           Nowe spotkanie
+        </NavLink>
+        <NavLink to="/tasks" path={path} navigate={navigate}>
+          Zadania
         </NavLink>
         <NavLink to="/settings" path={path} navigate={navigate}>
           Ustawienia
