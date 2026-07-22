@@ -13,8 +13,10 @@ from starlette.middleware.sessions import SessionMiddleware
 from app.auth.accounts import get_owner_id
 from app.auth.google_oauth import NeedsReauthError
 from app.auth.router import router as auth_router
+from app.briefing.router import router as briefing_router
 from app.config import settings
 from app.db import SessionLocal, engine
+from app.decisions.router import router as decisions_router
 from app.meetings.router import router as meetings_router
 from app.notifications.reminders import catch_up_if_needed, run_daily_reminders
 from app.people.router import router as people_router
@@ -90,6 +92,8 @@ app.include_router(people_router)
 app.include_router(topics_router)
 app.include_router(meetings_router)
 app.include_router(tasks_router)
+app.include_router(decisions_router)
+app.include_router(briefing_router)
 
 
 @app.exception_handler(NeedsReauthError)

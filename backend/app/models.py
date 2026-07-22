@@ -26,6 +26,7 @@ from sqlalchemy import (
     func,
     text,
 )
+from pgvector.sqlalchemy import Vector
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 
 metadata = MetaData()
@@ -149,7 +150,10 @@ decision = Table(
     Column("category", Text),
     Column("quote", Text),
     Column("ai_confidence", REAL),
-    # embedding vector(768) — dodane w etapie 9, gdy pojawi się generowanie embeddingów.
+    # Kolumna istnieje w bazie od migracji 0001 (create table + indeks ivfflat);
+    # tu dopiero dodajemy jej typ do metadanych, gdy pojawia się generowanie
+    # embeddingów (etap 9, SPEC.md §10.4).
+    Column("embedding", Vector(768)),
     Column("created_at", DateTime(timezone=True), nullable=False, server_default=func.now()),
 )
 

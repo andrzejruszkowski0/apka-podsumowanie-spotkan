@@ -107,3 +107,26 @@ W drugim terminalu: `cd frontend && npm run dev`, otwórz `http://localhost:5173
 5. `POST /auth/logout` (przycisk „Wyloguj") czyści sesję; `GET /auth/me` bez sesji zwraca 401.
 
 Punkty 1–4 zweryfikowane ręcznie 2026-07-19 (External/Testing, konto Gmail — patrz wyżej).
+
+## Etap 9 — rejestr decyzji i briefing
+
+**Odstępstwo od SPEC.md:** model embeddingów `text-embedding-004` (§1, §10.4)
+został wycofany przez Google — wywołanie zwraca `404 NOT_FOUND`. Zastępca to
+`gemini-embedding-001` z `output_dimensionality=768`, żeby zachować zgodność
+z kolumną `decision.embedding vector(768)` i indeksem ivfflat już istniejącymi
+w bazie (migracja 0001). Konfigurowalne przez `GEMINI_EMBEDDING_MODEL` /
+`GEMINI_EMBEDDING_DIMENSIONS` w `.env`.
+
+Backfill dla decyzji sprzed tego etapu:
+
+```
+cd backend
+.venv\Scripts\activate
+python -m scripts.backfill_decision_embeddings
+```
+
+Zweryfikowane ręcznie 2026-07-22 na żywej bazie: backfill uzupełnił
+embeddingi 4 istniejącym decyzjom; zapytanie bez wspólnych słów z treścią
+decyzji („Czy personel zostaje w pracy do późna wieczorem w świąteczne
+miesiące?") poprawnie znalazło decyzje o wydłużeniu godzin otwarcia sklepów
+w grudniu.

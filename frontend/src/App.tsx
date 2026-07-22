@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
+import Briefing from "./pages/Briefing";
 import Dashboard from "./pages/Dashboard";
+import Decisions from "./pages/Decisions";
 import MeetingDetail from "./pages/MeetingDetail";
 import Review from "./pages/Review";
 import Settings from "./pages/Settings";
@@ -68,6 +70,11 @@ function App() {
   } else if (path === "/tasks") {
     page = <Tasks />;
     wide = true;
+  } else if (path === "/decisions") {
+    page = <Decisions />;
+    wide = true;
+  } else if (path === "/briefing") {
+    page = <Briefing />;
   } else if (path === "/upload") {
     page = <Upload onCreated={(id) => navigate(`/meetings/${id}`)} />;
   } else if (reviewMatch) {
@@ -90,6 +97,12 @@ function App() {
         </NavLink>
         <NavLink to="/tasks" path={path} navigate={navigate}>
           Zadania
+        </NavLink>
+        <NavLink to="/decisions" path={path} navigate={navigate}>
+          Decyzje
+        </NavLink>
+        <NavLink to="/briefing" path={path} navigate={navigate}>
+          Briefing
         </NavLink>
         <NavLink to="/settings" path={path} navigate={navigate}>
           Ustawienia

@@ -5,6 +5,7 @@ zatwierdzonych zadań do Sheets (SPEC.md §6, etap 7).
 
 from __future__ import annotations
 
+import logging
 import os
 import uuid
 from datetime import date
@@ -19,12 +20,15 @@ from sqlalchemy.orm import Session
 from app.auth.dependencies import CurrentUser, require_user
 from app.auth.tokens import get_valid_access_token
 from app.db import get_db
+from app.decisions.embeddings import generate_missing_embeddings
 from app.meetings.processing import run_processing
 from app.meetings.review import ReviewUpdateIn, any_unresolved, apply_review_update, get_review_payload
 from app.meetings.storage import StorageError, StorageNotConfigured, upload_object
 from app.models import meeting, meeting_audio, task, transcript
 from app.tasks.sheets_client import SheetsApiError
 from app.tasks.sheets_sync import TasksSheetsNotConfigured, append_task_row, ensure_header
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/meetings", tags=["meetings"])
 
@@ -318,6 +322,15 @@ def approve_meeting(
 
     db.execute(update(meeting).where(meeting.c.id == meeting_id).values(status="approved"))
     db.commit()
+
+    # Best-effort: embedding to funkcja wyszukiwania w rejestrze decyzji
+    # (SPEC.md §10.4, etap 9), nie integralność danych — błąd Gemini nie
+    # cofa ani nie blokuje zatwierdzenia, które już się udało.
+    try:
+        generate_missing_embeddings(db, meeting_id)
+    except Exception:
+        logger.warning("Nie udało się wygenerować embeddingów decyzji dla spotkania %s.", meeting_id, exc_info=True)
+
     return _serialize_meeting(
         db.execute(select(meeting).where(meeting.c.id == meeting_id)).mappings().one()
     )

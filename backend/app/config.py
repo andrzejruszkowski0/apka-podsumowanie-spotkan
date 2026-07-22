@@ -19,6 +19,13 @@ class Settings(BaseSettings):
     # Gemini
     gemini_api_key: str | None = None
     gemini_model: str = "gemini-flash-latest"
+    # SPEC.md §1/§10.4 mówi o "text-embedding-004", ale ten model nie istnieje
+    # już pod aktualnym API (404 NOT_FOUND — Google go wycofał). Zastępca to
+    # gemini-embedding-001, poproszony o output_dimensionality=768, żeby
+    # dopasować się do istniejącej kolumny decision.embedding vector(768)
+    # i indeksu ivfflat zbudowanego pod ten wymiar (migracja 0001).
+    gemini_embedding_model: str = "gemini-embedding-001"
+    gemini_embedding_dimensions: int = 768
 
     # Aplikacja
     token_encryption_key: str | None = None

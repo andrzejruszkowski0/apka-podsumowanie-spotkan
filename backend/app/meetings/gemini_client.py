@@ -46,6 +46,14 @@ class ExtractionError(RuntimeError):
     pass
 
 
+class EmbeddingError(RuntimeError):
+    pass
+
+
+class BriefingError(RuntimeError):
+    pass
+
+
 def _client() -> genai.Client:
     if not settings.gemini_api_key:
         raise GeminiNotConfigured("GEMINI_API_KEY nie jest ustawiony w .env.")
@@ -134,3 +142,30 @@ def reduce_candidates(reduce_prompt: str, meeting_id: uuid.UUID) -> MergedResult
         raise ExtractionError("Gemini zwrócił pustą odpowiedź dla fazy REDUCE.")
     _log_raw_response(meeting_id, "reduce", 0, response.text)
     return MergedResult.model_validate_json(response.text)
+
+
+def embed_text(text: str) -> list[float]:
+    """Embedding tekstu (gemini-embedding-001, 768 wymiarów — patrz app.config
+    dla wyjaśnienia zamiany modelu z SPEC.md) do wyszukiwania semantycznego
+    decyzji (SPEC.md §10.4, etap 9)."""
+    client = _client()
+    response = client.models.embed_content(
+        model=settings.gemini_embedding_model,
+        contents=text,
+        config=types.EmbedContentConfig(output_dimensionality=settings.gemini_embedding_dimensions),
+    )
+    if not response.embeddings:
+        raise EmbeddingError("Gemini nie zwrócił embeddingu.")
+    values = response.embeddings[0].values
+    if not values:
+        raise EmbeddingError("Gemini zwrócił pusty embedding.")
+    return values
+
+
+def generate_briefing(prompt: str) -> str:
+    """Notatka przed spotkaniem (SPEC.md §10.4, etap 9) — zwykły tekst, bez structured output."""
+    client = _client()
+    response = client.models.generate_content(model=settings.gemini_model, contents=prompt)
+    if not response.text:
+        raise BriefingError("Gemini zwrócił pustą odpowiedź dla briefingu.")
+    return response.text
