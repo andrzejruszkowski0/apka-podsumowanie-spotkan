@@ -3,6 +3,11 @@
 Wersja po ustaleniach. Zastępuje opis pierwotny.
 Dokumenty towarzyszące: `SPEC.md` (specyfikacja techniczna), `ETAPY.md` (prompty wdrożeniowe).
 
+**Zaktualizowano po Etapie 10** — dopisano zmiany, które wyszły dopiero w
+trakcie wdrażania kolejnych etapów (model embeddingów, realny tryb konta
+Google, sposób wysyłki briefingu i draftów), a nie były jeszcze znane w
+momencie spisania tej wersji.
+
 ---
 
 ## Czym to jest
@@ -165,6 +170,11 @@ co wymaga decyzji.
 **Uproszczenie wobec pierwotnego opisu:** briefing uruchamiasz **ręcznym
 wyborem dostawcy lub tematu w panelu**. Bez integracji z kalendarzem.
 
+**Doprecyzowanie wobec pierwotnej specyfikacji:** tak samo jak przy draftach
+poniżej, briefing to najpierw **podgląd**, dopiero potem osobny klik „Wyślij”
+— pierwotny opis zakładał jedno wywołanie „generuje i wysyła”, ale to
+łamałoby zasadę „AI nigdy nie decyduje samo o wysyłce maila”.
+
 Powód: Google Calendar API nie było w pierwotnym stosie, choć funkcja go
 zakładała, a przy hostingu lokalnym „15 minut przed spotkaniem" i tak działa
 tylko przy włączonym komputerze. Ręczny wybór daje 90% wartości za 10% pracy.
@@ -180,6 +190,12 @@ Trzy warianty podsumowania:
 
 Draft nigdy nie wychodzi automatycznie. Zawsze czytasz i klikasz wyślij.
 
+**Doprecyzowanie wobec pierwotnej specyfikacji:** odbiorcę (adres „Do”,
+opcjonalnie „Dw”) wpisujesz ręcznie przy każdej wysyłce — pierwotny opis tego
+nie precyzował. W odróżnieniu od briefingu (zawsze na Twój adres), draft
+trafia do różnych ludzi zależnie od szablonu (zarząd, dostawca, zespół), więc
+nie da się przypisać jednego stałego adresu z góry.
+
 ---
 
 ## 2. Stos narzędziowy — finalny
@@ -194,7 +210,7 @@ brak opłat subskrypcyjnych, fundament pod ewentualny produkt komercyjny.
 | Backend | Python + FastAPI | bez zmian |
 | Transkrypcja | **Gemini** (natywne audio) | **Whisper usunięty** |
 | Analiza AI | **Gemini** | wybrany spośród „OpenAI lub Gemini" |
-| Embeddingi | Gemini text-embedding-004 | nowe — wymagane przez wyszukiwanie semantyczne |
+| Embeddingi | Gemini gemini-embedding-001 (768 wym.) | nowe — wymagane przez wyszukiwanie semantyczne. Pierwotnie zakładany text-embedding-004, ale Google go wycofał w trakcie budowy (etap 9) |
 | Integracje | Google Sheets API, Gmail API | bez zmian |
 | Scheduler | APScheduler | + mechanizm nadrabiania zaległości |
 | Frontend | React (Vite) + TypeScript + Tailwind | doprecyzowane (nie „lub czysty HTML/JS") |
@@ -253,7 +269,7 @@ Uczciwa lista — to nie są przeoczenia, tylko decyzje:
 | Komputer wyłączony rano | Nadrabianie przy starcie |
 | AI myli mówców | Lista uczestników w prompcie + ekran weryfikacji |
 | AI wyciąga zadania-widma | Kryterium sprawdzalności + usuwanie na weryfikacji |
-| Token OAuth wygasa | Tryb **Internal** w Google Cloud Console (możliwy dzięki Workspace) — inaczej logowanie co 7 dni |
+| Token OAuth wygasa co ~7 dni | Konto użyte w projekcie to zwykły Gmail, nie Workspace — tryb **Internal** (bez wygasania) jest niedostępny. Realnie: logowanie raz w tygodniu, aplikacja sygnalizuje to czytelnym błędem zamiast cichej awarii wysyłki. Przejście na Workspace usunęłoby ograniczenie |
 | Ktoś edytuje arkusz | Zmiany zostaną nadpisane. Świadoma decyzja. |
 | Limit 1 GB storage | Usuwanie audio po udanej transkrypcji — wartością jest transkrypt |
 
@@ -265,7 +281,7 @@ Uczciwa lista — to nie są przeoczenia, tylko decyzje:
 |---|---|
 | Supabase Free | 0 zł |
 | Gemini (transkrypcja + analiza) | rząd kilkunastu złotych |
-| Gmail API, Sheets API | 0 zł (w ramach Workspace) |
+| Gmail API, Sheets API | 0 zł (w ramach darmowych limitów Google — konto nie jest Workspace) |
 | Hosting | 0 zł |
 
 ---
