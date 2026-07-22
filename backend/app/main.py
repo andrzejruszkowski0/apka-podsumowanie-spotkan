@@ -3,6 +3,7 @@ import secrets
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
+from apscheduler.schedulers.background import BackgroundScheduler
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -15,12 +16,19 @@ from app.auth.router import router as auth_router
 from app.config import settings
 from app.db import SessionLocal, engine
 from app.meetings.router import router as meetings_router
+from app.notifications.reminders import catch_up_if_needed, run_daily_reminders
 from app.people.router import router as people_router
 from app.people.sync import sync_people_on_startup
 from app.tasks.router import router as tasks_router
 from app.topics import router as topics_router
 
+# Bez tego komunikaty logger.info(...) (np. catch-up schedulera, SPEC.md §7)
+# są domyślnie wyciszane — Python bez konfiguracji pokazuje tylko WARNING+.
+logging.basicConfig(level=logging.INFO, format="%(levelname)s:%(name)s:%(message)s")
+
 logger = logging.getLogger(__name__)
+
+scheduler = BackgroundScheduler(timezone=settings.timezone)
 
 
 @asynccontextmanager
@@ -30,7 +38,25 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         sync_people_on_startup(db, get_owner_id(db))
     finally:
         db.close()
+
+    if settings.scheduler_enabled:
+        # Nadrabia dzisiejszy przebieg, jeśli backend był wyłączony o REMINDER_HOUR
+        # (hosting lokalny — SPEC.md §7).
+        catch_up_if_needed()
+        scheduler.add_job(
+            run_daily_reminders,
+            trigger="cron",
+            hour=settings.reminder_hour,
+            minute=0,
+            id="daily_reminders",
+            replace_existing=True,
+        )
+        scheduler.start()
+
     yield
+
+    if settings.scheduler_enabled and scheduler.running:
+        scheduler.shutdown(wait=False)
 
 
 app = FastAPI(title="Analiza spotkań", lifespan=lifespan)

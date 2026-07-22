@@ -28,6 +28,10 @@ class Settings(BaseSettings):
     reminder_days_ahead: int = 2
     frontend_origin: str = "http://localhost:5173"
     supabase_audio_bucket: str = "meeting-audio"
+    # Wyłącz w developmencie przy uruchamianiu `uvicorn --reload` — reloader
+    # potrafi odpalić lifespan (a więc i scheduler) dwukrotnie, co bez tej
+    # flagi skutkuje podwójną wysyłką przypomnień (SPEC.md §7, etap 8).
+    scheduler_enabled: bool = True
 
 
 settings = Settings()

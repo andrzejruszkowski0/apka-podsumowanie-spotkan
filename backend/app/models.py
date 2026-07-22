@@ -1,10 +1,8 @@
 """SQLAlchemy Core table definitions.
 
-Tylko tabele faktycznie używane przez aplikację (na razie: auth, person, topic,
-meeting i pochodne, oraz task/task_raci/decision od etapu 5). Reszta schematu
-z SPEC.md §2 (notification_log, scheduler_run) istnieje w bazie (patrz
-migrations/) i doczeka się własnych definicji, gdy kolejne etapy zaczną z niej
-korzystać.
+Tabele faktycznie używane przez aplikację: auth, person, topic, meeting
+i pochodne, task/task_raci/decision (etap 5) oraz notification_log/
+scheduler_run (etap 8 — przypomnienia mailowe i catch-up schedulera).
 
 task.quote, task.raci_raw i decision.quote/ai_confidence nie są w SPEC.md §2 —
 dodane migracją 0002, patrz komentarz tam.
@@ -153,4 +151,27 @@ decision = Table(
     Column("ai_confidence", REAL),
     # embedding vector(768) — dodane w etapie 9, gdy pojawi się generowanie embeddingów.
     Column("created_at", DateTime(timezone=True), nullable=False, server_default=func.now()),
+)
+
+notification_log = Table(
+    "notification_log",
+    metadata,
+    Column("id", UUID(as_uuid=True), primary_key=True, server_default=func.gen_random_uuid()),
+    Column("kind", Text, nullable=False),
+    Column("task_id", UUID(as_uuid=True), ForeignKey("task.id", ondelete="CASCADE")),
+    Column("meeting_id", UUID(as_uuid=True), ForeignKey("meeting.id", ondelete="CASCADE")),
+    Column("recipient", Text, nullable=False),
+    Column("sent_on", Date, nullable=False),
+    Column("gmail_id", Text),
+    Column("created_at", DateTime(timezone=True), nullable=False, server_default=func.now()),
+    CheckConstraint("kind in ('reminder','briefing','summary')", name="notification_log_kind_check"),
+)
+
+# Znacznik ostatniego przebiegu schedulera — podstawa catch-up przy starcie
+# backendu (SPEC.md §7): job_name='daily_reminders' -> data ostatniego przebiegu.
+scheduler_run = Table(
+    "scheduler_run",
+    metadata,
+    Column("job_name", Text, primary_key=True),
+    Column("last_run", Date, nullable=False),
 )
