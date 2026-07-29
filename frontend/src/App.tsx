@@ -1,12 +1,30 @@
+import type { Session } from "@supabase/supabase-js";
 import { useCallback, useEffect, useState } from "react";
 import Briefing from "./pages/Briefing";
 import Dashboard from "./pages/Dashboard";
 import Decisions from "./pages/Decisions";
+import Login from "./pages/Login";
 import MeetingDetail from "./pages/MeetingDetail";
 import Review from "./pages/Review";
 import Settings from "./pages/Settings";
 import Tasks from "./pages/Tasks";
 import Upload from "./pages/Upload";
+import { supabase } from "./lib/supabaseClient";
+
+function useSession(): Session | null | undefined {
+  // undefined = jeszcze nie sprawdzono, null = brak sesji (pokaż login)
+  const [session, setSession] = useState<Session | null | undefined>(undefined);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSession(data.session));
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+    return () => listener.subscription.unsubscribe();
+  }, []);
+
+  return session;
+}
 
 // Router-lite: kilka stron na razie nie uzasadnia jeszcze dociągania
 // react-router-dom. Rozbuduje się w kolejnych etapach (§11 SPEC.md), gdy
@@ -59,9 +77,17 @@ function NavLink({
 }
 
 function App() {
+  const session = useSession();
   const [path, navigate] = useRoute();
   const reviewMatch = path.match(/^\/meetings\/([^/]+)\/review$/);
   const meetingMatch = path.match(/^\/meetings\/([^/]+)$/);
+
+  if (session === undefined) {
+    return <div className="min-h-screen bg-gray-50" />;
+  }
+  if (session === null) {
+    return <Login />;
+  }
 
   let page: React.ReactNode;
   let wide = false;
@@ -107,6 +133,12 @@ function App() {
         <NavLink to="/settings" path={path} navigate={navigate}>
           Ustawienia
         </NavLink>
+        <button
+          onClick={() => supabase.auth.signOut()}
+          className="ml-auto text-gray-500 hover:text-gray-900"
+        >
+          Wyloguj
+        </button>
       </nav>
       <div className={(wide ? "max-w-4xl" : "max-w-2xl") + " mx-auto py-10 px-4"}>{page}</div>
     </div>
