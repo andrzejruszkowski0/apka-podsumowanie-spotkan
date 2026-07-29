@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { apiFetch } from "../lib/api";
 
 type Topic = { id: string; name: string; kind: string; notes: string | null };
 
@@ -27,7 +28,7 @@ function Upload({ onCreated }: { onCreated: (meetingId: string) => void }) {
   const [submit, setSubmit] = useState<SubmitState>({ kind: "idle" });
 
   useEffect(() => {
-    fetch("/topics")
+    apiFetch("/topics")
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error(`HTTP ${res.status}`))))
       .then(setTopics)
       .catch(() => setTopics([]));
@@ -46,7 +47,7 @@ function Upload({ onCreated }: { onCreated: (meetingId: string) => void }) {
           throw new Error("Wklej treść spotkania.");
         }
 
-        const createRes = await fetch("/meetings", {
+        const createRes = await apiFetch("/meetings", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -65,13 +66,13 @@ function Upload({ onCreated }: { onCreated: (meetingId: string) => void }) {
             fd.append("files", f);
             fd.append("part_index", String(i + 1));
           });
-          const audioRes = await fetch(`/meetings/${created.id}/audio`, {
+          const audioRes = await apiFetch(`/meetings/${created.id}/audio`, {
             method: "POST",
             body: fd,
           });
           if (!audioRes.ok) throw new Error(await errorDetail(audioRes));
         } else {
-          const textRes = await fetch(`/meetings/${created.id}/text`, {
+          const textRes = await apiFetch(`/meetings/${created.id}/text`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ content: text }),
@@ -79,7 +80,7 @@ function Upload({ onCreated }: { onCreated: (meetingId: string) => void }) {
           if (!textRes.ok) throw new Error(await errorDetail(textRes));
         }
 
-        const processRes = await fetch(`/meetings/${created.id}/process`, { method: "POST" });
+        const processRes = await apiFetch(`/meetings/${created.id}/process`, { method: "POST" });
         if (!processRes.ok) throw new Error(await errorDetail(processRes));
 
         onCreated(created.id);

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { apiFetch } from "../lib/api";
 
 type Topic = { id: string; name: string; kind: string; notes: string | null };
 
@@ -48,7 +49,7 @@ function Tasks() {
   const [pendingIds, setPendingIds] = useState<string[]>([]);
 
   useEffect(() => {
-    fetch("/topics")
+    apiFetch("/topics")
       .then(async (res) => {
         if (!res.ok) throw new Error(await errorDetail(res));
         setTopics(await res.json());
@@ -65,7 +66,7 @@ function Tasks() {
     if (statusFilter) params.set("status", statusFilter);
     if (topicFilter) params.set("topic_id", topicFilter);
     if (overdueOnly) params.set("overdue", "true");
-    fetch(`/tasks?${params.toString()}`)
+    apiFetch(`/tasks?${params.toString()}`)
       .then(async (res) => {
         if (!res.ok) throw new Error(await errorDetail(res));
         const data: Task[] = await res.json();
@@ -83,7 +84,7 @@ function Tasks() {
     const nextStatus = t.status === "done" ? "open" : "done";
     setPendingIds((prev) => [...prev, t.id]);
     try {
-      const res = await fetch(`/tasks/${t.id}`, {
+      const res = await apiFetch(`/tasks/${t.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: nextStatus }),

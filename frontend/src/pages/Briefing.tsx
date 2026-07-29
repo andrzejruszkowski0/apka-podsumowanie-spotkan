@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { apiFetch } from "../lib/api";
 
 type Topic = { id: string; name: string; kind: string; notes: string | null };
 
@@ -28,7 +29,7 @@ function Briefing() {
   const [send, setSend] = useState<SendState>({ kind: "idle" });
 
   useEffect(() => {
-    fetch("/topics")
+    apiFetch("/topics")
       .then(async (res) => {
         if (!res.ok) throw new Error(await errorDetail(res));
         setTopics(await res.json());
@@ -42,7 +43,7 @@ function Briefing() {
     if (!topicId) return;
     setPreview({ kind: "loading" });
     setSend({ kind: "idle" });
-    fetch("/briefing/preview", {
+    apiFetch("/briefing/preview", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ topic_id: topicId }),
@@ -61,7 +62,7 @@ function Briefing() {
   const sendBriefing = useCallback(() => {
     if (preview.kind !== "ok") return;
     setSend({ kind: "loading" });
-    fetch("/briefing/send", {
+    apiFetch("/briefing/send", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

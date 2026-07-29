@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { apiFetch } from "../lib/api";
 
 type Person = {
   id: string;
@@ -30,7 +31,7 @@ function Settings() {
 
   const loadPeople = useCallback(() => {
     setPeople({ kind: "loading" });
-    fetch("/people")
+    apiFetch("/people")
       .then(async (res) => {
         if (!res.ok) throw new Error(await errorDetail(res));
         const data: Person[] = await res.json();
@@ -47,7 +48,7 @@ function Settings() {
 
   const runSync = useCallback(() => {
     setSync({ kind: "loading" });
-    fetch("/people/sync", { method: "POST" })
+    apiFetch("/people/sync", { method: "POST" })
       .then(async (res) => {
         if (!res.ok) throw new Error(await errorDetail(res));
         return res.json();

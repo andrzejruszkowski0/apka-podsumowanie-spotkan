@@ -6,6 +6,10 @@ venv/
 
 # Backend env
 backend/.env
+frontend/.env
+
+# Lokalny config MCP (Claude Code) — narzędzie dev, nie część aplikacji
+.mcp.json
 
 # Surowe odpowiedzi Gemini (debug promptów) — mogą zawierać treść spotkań
 backend/logs/

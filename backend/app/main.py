@@ -83,8 +83,8 @@ app.add_middleware(
     SessionMiddleware,
     secret_key=_session_secret,
     session_cookie="session",
-    same_site="lax",
-    https_only=False,
+    same_site="none" if settings.session_cookie_secure else "lax",
+    https_only=settings.session_cookie_secure,
 )
 
 app.include_router(auth_router)

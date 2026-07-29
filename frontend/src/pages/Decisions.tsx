@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { apiFetch } from "../lib/api";
 
 type Topic = { id: string; name: string; kind: string; notes: string | null };
 
@@ -30,7 +31,7 @@ function Decisions() {
   const [activeQuery, setActiveQuery] = useState("");
 
   useEffect(() => {
-    fetch("/topics")
+    apiFetch("/topics")
       .then(async (res) => {
         if (!res.ok) throw new Error(await errorDetail(res));
         setTopics(await res.json());
@@ -46,7 +47,7 @@ function Decisions() {
     const params = new URLSearchParams();
     if (topicFilter) params.set("topic_id", topicFilter);
     if (activeQuery) params.set("q", activeQuery);
-    fetch(`/decisions?${params.toString()}`)
+    apiFetch(`/decisions?${params.toString()}`)
       .then(async (res) => {
         if (!res.ok) throw new Error(await errorDetail(res));
         const data: Decision[] = await res.json();

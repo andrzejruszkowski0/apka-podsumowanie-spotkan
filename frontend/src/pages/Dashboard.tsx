@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { API_URL, apiFetch } from "../lib/api";
 
 type HealthState =
   | { kind: "loading" }
@@ -38,7 +39,7 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
   const [meetings, setMeetings] = useState<MeetingsState>({ kind: "loading" });
 
   useEffect(() => {
-    fetch("/meetings")
+    apiFetch("/meetings")
       .then(async (res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data: MeetingSummary[] = await res.json();
@@ -50,7 +51,7 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
   }, []);
 
   useEffect(() => {
-    fetch("/health")
+    apiFetch("/health")
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
@@ -62,7 +63,7 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
   }, []);
 
   const loadMe = useCallback(() => {
-    fetch("/auth/me")
+    apiFetch("/auth/me")
       .then(async (res) => {
         if (res.status === 401) {
           setAuth({ kind: "anonymous" });
@@ -82,7 +83,7 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
   }, [loadMe]);
 
   const logout = useCallback(() => {
-    fetch("/auth/logout", { method: "POST" }).finally(loadMe);
+    apiFetch("/auth/logout", { method: "POST" }).finally(loadMe);
   }, [loadMe]);
 
   return (
@@ -111,7 +112,7 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
         )}
         {auth.kind === "anonymous" && (
           <a
-            href="/auth/login"
+            href={`${API_URL}/auth/login`}
             className="inline-block rounded-md bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700"
           >
             Zaloguj się przez Google

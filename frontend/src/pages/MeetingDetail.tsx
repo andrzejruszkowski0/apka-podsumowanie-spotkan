@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { apiFetch } from "../lib/api";
 
 type TranscriptPart = { part_index: number; content: string };
 
@@ -75,7 +76,7 @@ function DraftPanel({ meetingId }: { meetingId: string }) {
   const generatePreview = useCallback(() => {
     setDraft({ kind: "loading" });
     setSend({ kind: "idle" });
-    fetch(`/meetings/${meetingId}/draft`, {
+    apiFetch(`/meetings/${meetingId}/draft`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ template }),
@@ -93,7 +94,7 @@ function DraftPanel({ meetingId }: { meetingId: string }) {
   const sendDraft = useCallback(() => {
     if (draft.kind !== "ok" || !to.trim()) return;
     setSend({ kind: "loading" });
-    fetch(`/meetings/${meetingId}/draft/send`, {
+    apiFetch(`/meetings/${meetingId}/draft/send`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -214,7 +215,7 @@ function MeetingDetail({
     let timer: ReturnType<typeof setTimeout> | undefined;
 
     const load = () => {
-      fetch(`/meetings/${meetingId}`)
+      apiFetch(`/meetings/${meetingId}`)
         .then(async (res) => {
           if (!res.ok) {
             const body = await res.json().catch(() => null);

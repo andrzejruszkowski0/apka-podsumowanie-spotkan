@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { apiFetch } from "../lib/api";
 
 type Person = { id: string; full_name: string; email: string; aliases: string[]; org: string | null };
 
@@ -342,11 +343,11 @@ function Review({ meetingId, navigate }: { meetingId: string; navigate: (to: str
   useEffect(() => {
     let cancelled = false;
     Promise.all([
-      fetch(`/meetings/${meetingId}`).then(async (res) => {
+      apiFetch(`/meetings/${meetingId}`).then(async (res) => {
         if (!res.ok) throw new Error(await errorDetail(res));
         return res.json() as Promise<Meeting>;
       }),
-      fetch("/people").then(async (res) => {
+      apiFetch("/people").then(async (res) => {
         if (!res.ok) throw new Error(await errorDetail(res));
         return res.json() as Promise<Person[]>;
       }),
@@ -358,7 +359,7 @@ function Review({ meetingId, navigate }: { meetingId: string; navigate: (to: str
           setState({ kind: "not_reviewable", status: meeting.status });
           return;
         }
-        const res = await fetch(`/meetings/${meetingId}/review`);
+        const res = await apiFetch(`/meetings/${meetingId}/review`);
         if (!res.ok) throw new Error(await errorDetail(res));
         const payload: ReviewPayload = await res.json();
         setTasks(payload.tasks);
@@ -392,7 +393,7 @@ function Review({ meetingId, navigate }: { meetingId: string; navigate: (to: str
     setSaving(true);
     setSaveError(null);
     try {
-      const putRes = await fetch(`/meetings/${meetingId}/review`, {
+      const putRes = await apiFetch(`/meetings/${meetingId}/review`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -420,7 +421,7 @@ function Review({ meetingId, navigate }: { meetingId: string; navigate: (to: str
       });
       if (!putRes.ok) throw new Error(await errorDetail(putRes));
 
-      const approveRes = await fetch(`/meetings/${meetingId}/approve`, { method: "POST" });
+      const approveRes = await apiFetch(`/meetings/${meetingId}/approve`, { method: "POST" });
       if (!approveRes.ok) throw new Error(await errorDetail(approveRes));
 
       navigate(`/meetings/${meetingId}`);

@@ -34,6 +34,11 @@ class Settings(BaseSettings):
     reminder_hour: int = 8
     reminder_days_ahead: int = 2
     frontend_origin: str = "http://localhost:5173"
+    # Frontend i backend na osobnych domenach (np. Vercel + Render) to cookie
+    # sesji cross-site z perspektywy przeglądarki — wymaga SameSite=None i
+    # Secure (możliwe tylko pod HTTPS). Lokalnie (http://localhost) zostaw
+    # False, inaczej przeglądarka odrzuci cookie w ogóle.
+    session_cookie_secure: bool = False
     supabase_audio_bucket: str = "meeting-audio"
     # Wyłącz w developmencie przy uruchamianiu `uvicorn --reload` — reloader
     # potrafi odpalić lifespan (a więc i scheduler) dwukrotnie, co bez tej
