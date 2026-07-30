@@ -108,8 +108,8 @@ def make_meetings(n: int, user_id: uuid.UUID, topics: list[dict]) -> list[dict]:
                 "topic_id": random.choice(topics)["id"] if topics else None,
                 "title": f"Spotkanie testowe #{i + 1}",
                 "meeting_date": date.today() - timedelta(days=random.randint(0, 30)),
-                "source_type": random.choice(["upload", "manual"]),
-                "status": "processed",
+                "source_type": random.choice(["audio", "text"]),
+                "status": "approved",
             }
         )
     return rows
