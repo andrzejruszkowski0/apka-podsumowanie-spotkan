@@ -105,4 +105,4 @@ def needs_reauth_handler(request, exc: NeedsReauthError) -> JSONResponse:
 def health() -> dict[str, str]:
     with engine.connect() as conn:
         conn.execute(text("SELECT 1"))
-    return {"status": "ok"}
+    return {"status": "ok", "deploy_check": "cicd-pipeline-test-2026-08-01"}
