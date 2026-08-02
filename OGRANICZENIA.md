@@ -16,14 +16,17 @@ rejestr decyzji/briefing i szablony draftów to funkcje dodatkowe —
 zaimplementowane, ale to prosta aplikacja jednoosobowa, nie system
 klasy enterprise.
 
-## 2. Konto Google w trybie Testing/External, nie Workspace
+## 2. Konto Google w trybie Testing/External, nie Workspace — dotyczy Gmaila
 
 Konto użyte w projekcie (`andrzejruszkowski0@gmail.com`) to zwykły Gmail,
 nie Google Workspace. Google nie oferuje wtedy trybu **Internal** —
-aplikacja działa w trybie **External / Testing**.
+aplikacja działa w trybie **External** (status publikacji podnoszony do
+Production, ale bez ukończonej pełnej weryfikacji Google dla wrażliwych
+scope).
 
-**Konsekwencja:** refresh token wygasa co ok. **7 dni**. Raz na tydzień
-trzeba kliknąć "Zaloguj się przez Google" ponownie, inaczej:
+**Konsekwencja:** refresh token OAuth (logowanie usera, scope `gmail.send`)
+wygasa co ok. **7 dni** w statusie Testing. Raz na tydzień trzeba kliknąć
+"Zaloguj się przez Google" ponownie, inaczej:
 - wysyłka przypomnień o zadaniach (Etap 8),
 - wysyłka briefingów (Etap 9),
 - wysyłka draftów podsumowań (Etap 10),
@@ -31,6 +34,13 @@ trzeba kliknąć "Zaloguj się przez Google" ponownie, inaczej:
 przestaną działać po cichu, dopóki nie nastąpi ponowne logowanie. Aplikacja
 obsługuje to czytelnym komunikatem zamiast crasha, ale to nie jest
 "ustaw i zapomnij" — wymaga cyklicznej uwagi właściciela.
+
+**Sheets (arkusze „Osoby” i „Zadania RACI”) tego ograniczenia już nie ma** —
+od 2026-08-02 są obsługiwane przez osobne konto serwisowe (Service Account),
+niezależne od statusu OAuth i logowania usera. Powód zmiany: Sheets API
+zwracało 403 przy wywołaniach z Render (produkcja) mimo działającego tokena
+lokalnie i mimo przełączenia ekranu zgody na Production — patrz
+GOOGLE_OAUTH_SETUP.md, sekcja „Konto serwisowe do Google Sheets”.
 
 ## 3. Scheduler działa tylko, gdy komputer jest włączony
 
@@ -60,3 +70,23 @@ widoczne przy testowaniu każdego etapu osobno.
 - Edycja arkusza „Zadania RACI” jest jednostronnie nadpisywana przy kolejnej
   synchronizacji z Postgresa — Sheets to widok eksportowy, nie edytor
   (świadoma decyzja, SPEC.md §6).
+
+## 6. Projekt Supabase (demo) usypia po ~7 dniach bezczynności — inaczej niż Render
+
+Darmowy tier Supabase automatycznie **wstrzymuje (Paused)** cały projekt po
+ok. tygodniu bez ruchu API — nie tylko Postgres, ale i Auth. W tym stanie
+logowanie do appki (Supabase Auth, ekran email+hasło) kończy się mylącym
+komunikatem **„Invalid login credentials”**, mimo że konto istnieje i hasło
+jest poprawne — bo w ogóle nie dochodzi do sprawdzenia danych.
+
+**Różnica względem usypiania Render:** backend na Render budzi się sam przy
+pierwszym request (tylko wolniej, 30-60s). Projekt Supabase **nie budzi się
+sam** przy wejściu na stronę — wymaga ręcznego kliknięcia **Restore** w
+Supabase Dashboard (dashboard projektu pokazuje status „Paused” z tym
+przyciskiem), potem ok. 1-2 min na powrót do stanu Active.
+
+**Diagnoza:** jeśli logowanie nagle przestaje działać bez żadnej zmiany w
+kodzie/konfiguracji, sprawdź najpierw status projektu w Supabase Dashboard
+zanim zaczniesz szukać błędu w kodzie — to najczęstsza przyczyna (wystąpiło
+2026-08-02, potwierdzone w Auth Logs jako brak jakiejkolwiek odpowiedzi z
+wstrzymanego projektu).
