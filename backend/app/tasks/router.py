@@ -18,8 +18,7 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import CurrentUser, require_user
-from app.auth.google_oauth import NeedsReauthError
-from app.auth.tokens import get_valid_access_token
+from app.auth.service_account import ServiceAccountNotConfigured, get_service_account_access_token
 from app.db import get_db
 from app.models import meeting, person, task, task_raci, topic
 from app.tasks.sheets_client import SheetsApiError
@@ -135,10 +134,10 @@ def patch_task(
         db.commit()
 
         try:
-            access_token = get_valid_access_token(db, user.id)
+            access_token = get_service_account_access_token()
             update_task_row(db, access_token, task_id)
             db.commit()
-        except (TasksSheetsNotConfigured, SheetsApiError, NeedsReauthError) as exc:
+        except (TasksSheetsNotConfigured, SheetsApiError, ServiceAccountNotConfigured) as exc:
             logger.warning("Sync zadania %s do Sheets nie powiódł się: %s", task_id, exc)
 
     row = _get_owned_task(db, task_id, user.id)

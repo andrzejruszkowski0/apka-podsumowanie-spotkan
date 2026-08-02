@@ -1,8 +1,8 @@
 """Cienki klient odczytu Google Sheets (REST v4) — bez google-api-python-client.
 
 Używa access tokena Google dostarczonego przez wywołującego (patrz
-app.auth.tokens.get_valid_access_token) — ten moduł nic nie wie o auth ani
-o bazie.
+app.auth.service_account.get_service_account_access_token) — ten moduł nic
+nie wie o auth ani o bazie.
 """
 
 from __future__ import annotations

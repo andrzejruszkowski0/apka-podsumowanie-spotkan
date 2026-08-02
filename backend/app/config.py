@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     google_redirect_uri: str | None = None
     sheets_tasks_id: str | None = None
     sheets_people_id: str | None = None
+    # Klucz JSON konta serwisowego (surowa treść pliku pobranego z Google Cloud
+    # Console) — używany do odczytu/zapisu arkuszy Sheets zamiast tokena
+    # zalogowanego usera, patrz app.auth.service_account.
+    google_service_account_json: str | None = None
 
     # Gemini
     gemini_api_key: str | None = None

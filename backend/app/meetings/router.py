@@ -19,6 +19,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import CurrentUser, require_user
+from app.auth.service_account import ServiceAccountNotConfigured, get_service_account_access_token
 from app.auth.tokens import get_valid_access_token
 from app.db import get_db
 from app.decisions.embeddings import generate_missing_embeddings
@@ -316,8 +317,8 @@ def approve_meeting(
             detail="Są nierozwiązane nazwiska w zadaniach lub decyzjach — popraw je przed zatwierdzeniem.",
         )
 
-    access_token = get_valid_access_token(db, user.id)
     try:
+        access_token = get_service_account_access_token()
         ensure_header(access_token)
         # sheets_row IS NULL: dopisz tylko to, co jeszcze nie trafiło do arkusza —
         # ponowne kliknięcie „Zatwierdź” po wcześniejszym błędzie nie dubluje wierszy.
@@ -331,7 +332,7 @@ def approve_meeting(
         for task_id in pending_ids:
             append_task_row(db, access_token, task_id)
         db.commit()
-    except (TasksSheetsNotConfigured, SheetsApiError) as exc:
+    except (TasksSheetsNotConfigured, ServiceAccountNotConfigured, SheetsApiError) as exc:
         db.rollback()
         raise HTTPException(
             status_code=400, detail=f"Zapis zadań do Google Sheets nie powiódł się: {exc}"

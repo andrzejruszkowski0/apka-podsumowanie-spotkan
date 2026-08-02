@@ -7,7 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.auth.dependencies import CurrentUser, require_user
-from app.auth.tokens import get_valid_access_token
+from app.auth.service_account import ServiceAccountNotConfigured
 from app.db import get_db
 from app.models import person
 from app.people.sheets_client import SheetsApiError
@@ -20,10 +20,9 @@ router = APIRouter(tags=["people"])
 def trigger_sync(
     user: CurrentUser = Depends(require_user), db: Session = Depends(get_db)
 ) -> dict[str, int]:
-    access_token = get_valid_access_token(db, user.id)
     try:
-        result = sync_people_from_sheet(db, access_token)
-    except (PeopleSyncNotConfigured, SheetsApiError) as exc:
+        result = sync_people_from_sheet(db)
+    except (PeopleSyncNotConfigured, ServiceAccountNotConfigured, SheetsApiError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     return {"upserted": result.upserted, "deactivated": result.deactivated}
 
