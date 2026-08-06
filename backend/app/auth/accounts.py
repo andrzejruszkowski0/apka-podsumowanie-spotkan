@@ -19,6 +19,28 @@ def get_owner_id(db: Session) -> uuid.UUID | None:
     return db.execute(select(app_user.c.id).order_by(app_user.c.created_at).limit(1)).scalar_one_or_none()
 
 
+def create_demo_user(db: Session) -> uuid.UUID:
+    """Konto demo bez Google OAuth.
+
+    Appka jest w Google OAuth w statusie Testing — tylko zarejestrowani
+    testerzy mogą przejść ekran zgody, więc przypadkowy gość demo w ogóle
+    nie dotarłby dalej niż "Zaloguj się przez Google". To konto omija ten
+    krok: brak wiersza w oauth_token, więc funkcje mailowe (draft/send,
+    briefing) zwrócą 401 reauth_required — obsługiwane po stronie frontu.
+    """
+    token = uuid.uuid4().hex
+    stmt = (
+        pg_insert(app_user)
+        .values(
+            google_sub=f"demo:{token}",
+            email=f"demo+{token[:12]}@demo.local",
+            display_name="Użytkownik demo",
+        )
+        .returning(app_user.c.id)
+    )
+    return db.execute(stmt).scalar_one()
+
+
 def upsert_user(db: Session, identity: GoogleIdentity) -> uuid.UUID:
     stmt = pg_insert(app_user).values(
         google_sub=identity.sub,

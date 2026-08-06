@@ -10,7 +10,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.auth.accounts import store_tokens, upsert_user
+from app.auth.accounts import create_demo_user, store_tokens, upsert_user
 from app.auth.dependencies import CurrentUser, require_user
 from app.auth.google_oauth import (
     GoogleOAuthNotConfigured,
@@ -73,6 +73,20 @@ def callback(
     return RedirectResponse(settings.frontend_origin)
 
 
+@router.post("/demo-login")
+def demo_login(request: Request, db: Session = Depends(get_db)) -> dict[str, str]:
+    """Sesja demo bez Google OAuth (patrz komentarz w accounts.create_demo_user).
+
+    Idempotentne: jeśli sesja już ma zalogowanego użytkownika (demo albo
+    prawdziwego, np. przez podwójne kliknięcie), nic nie tworzy ponownie.
+    """
+    if not request.session.get("user_id"):
+        user_id = create_demo_user(db)
+        db.commit()
+        request.session["user_id"] = str(user_id)
+    return {"status": "ok"}
+
+
 @router.post("/logout")
 def logout(request: Request) -> dict[str, str]:
     request.session.clear()
@@ -81,9 +95,7 @@ def logout(request: Request) -> dict[str, str]:
 
 @router.get("/me")
 def me(user: CurrentUser = Depends(require_user), db: Session = Depends(get_db)) -> dict:
-    token_row = db.execute(
-        select(oauth_token.c.user_id).where(oauth_token.c.user_id == user.id)
-    ).first()
+    token_row = db.execute(select(oauth_token.c.user_id).where(oauth_token.c.user_id == user.id)).first()
 
     google_connected = False
     reauth_required = False

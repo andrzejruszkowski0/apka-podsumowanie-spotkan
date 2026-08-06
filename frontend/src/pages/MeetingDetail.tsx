@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { apiFetch } from "../lib/api";
+import { apiFetch, errorDetail } from "../lib/api";
 
 type TranscriptPart = { part_index: number; content: string };
 
@@ -58,11 +58,6 @@ type SendState =
   | { kind: "loading" }
   | { kind: "done" }
   | { kind: "error"; message: string };
-
-async function errorDetail(res: Response): Promise<string> {
-  const body = await res.json().catch(() => null);
-  return body?.detail ?? `HTTP ${res.status}`;
-}
 
 function DraftPanel({ meetingId }: { meetingId: string }) {
   const [template, setTemplate] = useState<Template>("formal_board");

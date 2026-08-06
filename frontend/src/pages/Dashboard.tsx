@@ -86,6 +86,10 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
     apiFetch("/auth/logout", { method: "POST" }).finally(loadMe);
   }, [loadMe]);
 
+  const startDemo = useCallback(() => {
+    apiFetch("/auth/demo-login", { method: "POST" }).finally(loadMe);
+  }, [loadMe]);
+
   return (
     <div className="flex flex-col gap-4">
       <div className="rounded-lg border border-gray-200 bg-white px-8 py-6 shadow-sm text-center">
@@ -111,12 +115,24 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
           <p className="text-red-600">Błąd: {auth.message}</p>
         )}
         {auth.kind === "anonymous" && (
-          <a
-            href={`${API_URL}/auth/login`}
-            className="inline-block rounded-md bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700"
-          >
-            Zaloguj się przez Google
-          </a>
+          <div className="flex flex-col items-center gap-2">
+            <a
+              href={`${API_URL}/auth/login`}
+              className="inline-block rounded-md bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700"
+            >
+              Zaloguj się przez Google
+            </a>
+            <p className="max-w-sm text-xs text-gray-500">
+              Logowanie Google jest w trybie testowym — dostęp mają tylko
+              zaproszeni testerzy. Chcesz tylko zobaczyć appkę?
+            </p>
+            <button
+              onClick={startDemo}
+              className="text-sm text-blue-600 underline hover:text-blue-800"
+            >
+              Wypróbuj demo bez logowania Google
+            </button>
+          </div>
         )}
         {auth.kind === "authenticated" && (
           <div className="text-left">

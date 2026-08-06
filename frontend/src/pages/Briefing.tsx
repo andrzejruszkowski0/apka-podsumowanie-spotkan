@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { apiFetch } from "../lib/api";
+import { apiFetch, errorDetail } from "../lib/api";
 
 type Topic = { id: string; name: string; kind: string; notes: string | null };
 
@@ -16,11 +16,6 @@ type SendState =
   | { kind: "loading" }
   | { kind: "done" }
   | { kind: "error"; message: string };
-
-async function errorDetail(res: Response): Promise<string> {
-  const body = await res.json().catch(() => null);
-  return body?.detail ?? `HTTP ${res.status}`;
-}
 
 function Briefing() {
   const [topics, setTopics] = useState<Topic[]>([]);
