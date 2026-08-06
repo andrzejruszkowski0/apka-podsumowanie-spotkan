@@ -1,8 +1,17 @@
 # Konfiguracja Google OAuth (krok po kroku)
 
 Szczegółowy przepis na skonfigurowanie Google Cloud Console dla tej appki
-(Gmail + Sheets API) oraz kroki ręcznej weryfikacji, że logowanie działa.
+(logowanie + Gmail API) oraz kroki ręcznej weryfikacji, że logowanie działa.
 Wysokopoziomowy opis modelu uwierzytelniania: [SPEC.md](SPEC.md) §3.
+
+**Google Sheets nie jest tu już objęty.** Arkusze „Osoby” i „Zadania RACI”
+są czytane/zapisywane przez osobne **konto serwisowe** (Service Account),
+niezależnie od tego OAuth flow — patrz sekcja
+[„Konto serwisowe do Google Sheets”](#konto-serwisowe-do-google-sheets)
+niżej. Powód: ekran zgody OAuth w trybie Testing/niezweryfikowany Production
+ogranicza wywołania Sheets API z automatycznych/serwerowych kontekstów
+(Render) dla wrażliwego scope `spreadsheets`, mimo że ten sam token działał
+z lokalnego dev — service account całkowicie to omija.
 
 ## Wybór User Type
 
@@ -35,9 +44,9 @@ w zależności od wersji.)
    (External przy prywatnym Gmailu), dodaj adres e-mail (właściciela lub
    wspólnego konta demo) jako Test user.
 4. **Google Auth Platform → Dostęp do danych (Data access)** → "Dodaj lub
-   usuń zakresy" → zaznacz `.../auth/gmail.send` i `.../auth/spreadsheets`
-   (użyj filtra, żeby znaleźć je szybko na liście ~50 zakresów) → Update →
-   Save.
+   usuń zakresy" → zaznacz `.../auth/gmail.send` (użyj filtra, żeby znaleźć
+   go szybko na liście ~50 zakresów) → Update → Save. (`spreadsheets` nie
+   jest już potrzebny w tym flow — patrz wyżej.)
 5. **Google Auth Platform → Klienty (Clients) → Utwórz klienta**:
    - Typ aplikacji: **Aplikacja internetowa (Web application)**.
    - Autoryzowane URI przekierowania: `http://localhost:8000/auth/callback`
@@ -62,6 +71,39 @@ w zależności od wersji.)
    ```
    Wpisz wyniki jako `TOKEN_ENCRYPTION_KEY` i `SESSION_SECRET`.
 
+## Konto serwisowe do Google Sheets
+
+Arkusze „Osoby” (odczyt) i „Zadania RACI” (odczyt/zapis) są obsługiwane
+przez **Service Account**, nie przez logowanie OAuth powyżej — patrz
+`backend/app/auth/service_account.py`.
+
+1. **console.cloud.google.com → IAM & Admin → Service Accounts** → **CREATE
+   SERVICE ACCOUNT** (np. nazwa `sheets-sync`). Bez ról projektowych — Next
+   → Next → Done.
+2. Otwórz utworzone konto → zakładka **KEYS** → **ADD KEY** → **Create new
+   key** → typ **JSON** → **CREATE**. Plik pobiera się na dysk.
+3. W Google Sheets udostępnij oba arkusze adresowi e-mail service accounta
+   (`<nazwa>@<project-id>.iam.gserviceaccount.com`) jak zwykłemu kontu
+   Google: „Osoby” — rola tylko do odczytu (Przeglądający), „Zadania RACI”
+   — rola **Edytor** (backend tam dopisuje/aktualizuje wiersze).
+4. Wklej **całą zawartość** pobranego pliku JSON jako jedną linię do
+   `backend/.env`, w pojedynczych cudzysłowach (żeby `\n` wewnątrz
+   `private_key` zostało zachowane dosłownie, nie rozwinięte przez parser
+   `.env`):
+   ```
+   GOOGLE_SERVICE_ACCOUNT_JSON='{"type": "service_account", ...}'
+   ```
+   Na Render/w innym hostingu ustaw tę samą wartość jako zmienną środowiskową
+   (bez cudzysłowów — panel hostingu nie parsuje `.env` składni).
+
+**Dlaczego nie OAuth, jak Gmail:** ekran zgody OAuth w trybie Testing (albo
+Production bez ukończonej weryfikacji Google) ogranicza wywołania API dla
+wrażliwych scope przy zapytaniach z automatycznych/serwerowych kontekstów
+(np. Render) — mimo że dokładnie ten sam access token działał bez problemu
+wywołany bezpośrednio z lokalnego dev. Service account nie podlega temu
+ograniczeniu ani 7-dniowemu wygasaniu refresh tokena test usera (patrz
+OGRANICZENIA.md §2, dotyczy już tylko Gmaila).
+
 ## Weryfikacja ręczna
 
 ```
@@ -73,8 +115,8 @@ uvicorn app.main:app --host 127.0.0.1 --port 8000
 
 W drugim terminalu: `cd frontend && npm run dev`, otwórz `http://localhost:5173`.
 
-1. Kliknij „Zaloguj się przez Google" → ekran zgody Google (pyta o Gmail i
-   Sheets) → powrót do apki, widoczny e-mail zalogowanego użytkownika.
+1. Kliknij „Zaloguj się przez Google" → ekran zgody Google (pyta o Gmail) →
+   powrót do apki, widoczny e-mail zalogowanego użytkownika.
 2. W Supabase Studio sprawdź tabelę `oauth_token` — `refresh_token_enc`
    i `access_token_enc` powinny być nieczytelnym binarnym blobem (nie
    plaintext).

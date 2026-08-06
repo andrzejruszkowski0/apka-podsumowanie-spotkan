@@ -26,7 +26,7 @@ może potrwać 30-60s. Szczegóły wdrożenia: **[DEPLOY.md](DEPLOY.md)**.
 | Baza i storage | Supabase (Postgres + pgvector + Storage) |
 | Frontend | React (Vite), TypeScript, Tailwind |
 | AI | Gemini (transkrypcja audio, ekstrakcja RACI/decyzji, embeddingi) |
-| Integracje | Google OAuth, Gmail API, Google Sheets API |
+| Integracje | Google OAuth (Gmail API), Google Sheets API (service account) |
 | Auth appki | Supabase Auth (ekran logowania email+hasło) |
 | Scheduler | APScheduler (przypomnienia mailowe) |
 | Hosting demo | Render (backend) + Vercel (frontend) |
@@ -61,9 +61,12 @@ postgresql+psycopg://postgres:<hasło>@<host>:5432/postgres
 
 Sprawdzenie: `curl http://127.0.0.1:8000/health` → `{"status":"ok"}`.
 
-Konfiguracja Google OAuth (Client ID/Secret, redirect URI, scope'y Gmail/Sheets)
-i generowanie kluczy aplikacji (`TOKEN_ENCRYPTION_KEY`, `SESSION_SECRET`) — patrz
-**[GOOGLE_OAUTH_SETUP.md](GOOGLE_OAUTH_SETUP.md)**.
+Konfiguracja Google OAuth (Client ID/Secret, redirect URI, scope Gmail) i
+generowanie kluczy aplikacji (`TOKEN_ENCRYPTION_KEY`, `SESSION_SECRET`) — patrz
+**[GOOGLE_OAUTH_SETUP.md](GOOGLE_OAUTH_SETUP.md)**. Google Sheets (arkusze
+„Osoby” i „Zadania RACI”) jest czytany/zapisywany przez osobne konto
+serwisowe (`GOOGLE_SERVICE_ACCOUNT_JSON`), niezależnie od logowania OAuth —
+patrz komentarz w `backend/app/auth/service_account.py`.
 
 ### Frontend
 

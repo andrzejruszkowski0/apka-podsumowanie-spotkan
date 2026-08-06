@@ -1,7 +1,8 @@
 """Klient OAuth Google: URL logowania, wymiana kodu, odświeżanie access tokena.
 
-Jeden flow obsługuje logowanie (openid/email/profile) i uprawnienia do
-Gmail/Sheets (gmail.send, spreadsheets) — patrz SPEC.md §3.
+Jeden flow obsługuje logowanie (openid/email/profile) i uprawnienia do Gmaila
+(gmail.send) — patrz SPEC.md §3. Sheets nie jest tu już objęty: czytany/
+zapisywany jest przez osobne konto serwisowe, patrz app.auth.service_account.
 """
 
 from __future__ import annotations
@@ -22,7 +23,6 @@ SCOPES = [
     "https://www.googleapis.com/auth/userinfo.email",
     "https://www.googleapis.com/auth/userinfo.profile",
     "https://www.googleapis.com/auth/gmail.send",
-    "https://www.googleapis.com/auth/spreadsheets",
 ]
 
 TOKEN_URI = "https://oauth2.googleapis.com/token"
