@@ -25,6 +25,14 @@ osoby, która Cię do niej zaprosiła. Logowanie przez Google trzeba **odnawiać
 raz na tydzień** — jeśli po jakimś czasie przestaną chodzić maile, to
 najpierw sprawdź, czy nie trzeba się po prostu zalogować ponownie.
 
+Nie masz dostępu do konta Google zaproszonego jako tester (ekran zgody Google
+jest w trybie Testing)? Na Dashboardzie, obok przycisku „Zaloguj się przez
+Google", jest link **„Wypróbuj demo bez logowania Google"** — zakłada sesję
+demo bez OAuth, więc od razu widzisz upload, weryfikację, zadania i rejestr
+decyzji. W tym trybie nie zadziała nic, co wysyła maile (przypomnienia,
+briefing, drafty podsumowań) — appka pokaże wtedy komunikat, że funkcja wymaga
+połączonego konta Google.
+
 ## Krok po kroku: od nagrania do gotowych zadań
 
 ### 1. Wgrywanie spotkania

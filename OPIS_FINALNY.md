@@ -270,6 +270,7 @@ Uczciwa lista — to nie są przeoczenia, tylko decyzje:
 | AI myli mówców | Lista uczestników w prompcie + ekran weryfikacji |
 | AI wyciąga zadania-widma | Kryterium sprawdzalności + usuwanie na weryfikacji |
 | Token OAuth wygasa co ~7 dni | Konto użyte w projekcie to zwykły Gmail, nie Workspace — tryb **Internal** (bez wygasania) jest niedostępny. Realnie: logowanie raz w tygodniu, aplikacja sygnalizuje to czytelnym błędem zamiast cichej awarii wysyłki. Przejście na Workspace usunęłoby ograniczenie |
+| Ekran zgody Google (status Testing) wpuszcza tylko zaproszonych testerów | Przycisk „Wypróbuj demo bez logowania Google" (`POST /auth/demo-login`) zakłada sesję bez OAuth — reszta appki (upload, weryfikacja, zadania, decyzje) działa, tylko wysyłka maili zwraca czytelny komunikat zamiast się udawać |
 | Ktoś edytuje arkusz | Zmiany zostaną nadpisane. Świadoma decyzja. |
 | Limit 1 GB storage | Usuwanie audio po udanej transkrypcji — wartością jest transkrypt |
 

@@ -32,6 +32,11 @@ to od razu po komunikacie "Brak organizacji" przy tworzeniu projektu).
   to obsługuje (czytelny komunikat zamiast błędu), to nie jest bug.
 - Jeśli kiedyś pojawi się konto Workspace, wystarczy zmienić User Type na
   Internal w konsoli — kod backendu nie wymaga żadnych zmian.
+- Dla gości demo, których nie da się dodać jako Test user (np. jurorzy),
+  Dashboard ma obejście: przycisk „Wypróbuj demo bez logowania Google"
+  (`POST /auth/demo-login`) zakłada sesję bez OAuth, kosztem tego, że
+  wysyłka maili (przypomnienia/briefing/drafty) w tej sesji nie działa —
+  patrz OGRANICZENIA.md §2.
 
 ## Kroki konfiguracji
 

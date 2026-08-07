@@ -18,6 +18,15 @@ wspólne konto Google) — poproś o nie właściciela repo. Backend na darmowym
 planie Render usypia po ~15 min bezczynności — pierwsze wejście po przerwie
 może potrwać 30-60s. Szczegóły wdrożenia: **[DEPLOY.md](DEPLOY.md)**.
 
+Ekran logowania appki ma też przycisk **„Wypróbuj demo bez logowania Google"**
+— zakłada tymczasową sesję demo (`POST /auth/demo-login`) bez przechodzenia
+przez Google OAuth, więc mogą z niego skorzystać osoby, które nie zostały
+dodane jako testerzy w Google Cloud Console (ekran zgody Google jest w
+statusie Testing — patrz [GOOGLE_OAUTH_SETUP.md](GOOGLE_OAUTH_SETUP.md)).
+Ograniczenie: bez połączonego konta Google wysyłka maili (przypomnienia,
+briefingi, drafty podsumowań) jest niedostępna — appka pokazuje wtedy czytelny
+komunikat zamiast surowego błędu.
+
 ## Stos technologiczny
 
 | Warstwa | Technologia |

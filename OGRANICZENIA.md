@@ -35,6 +35,15 @@ przestaną działać po cichu, dopóki nie nastąpi ponowne logowanie. Aplikacja
 obsługuje to czytelnym komunikatem zamiast crasha, ale to nie jest
 "ustaw i zapomnij" — wymaga cyklicznej uwagi właściciela.
 
+**Ten sam status Testing ma drugi efekt uboczny:** tylko zaproszeni testerzy
+mogą w ogóle przejść ekran zgody Google, więc przypadkowy gość demo utykał na
+„Zaloguj się przez Google". Od 2026-08-06 Dashboard ma link **„Wypróbuj demo
+bez logowania Google"** (`POST /auth/demo-login`), który zakłada sesję bez
+OAuth. Kompromis: takie konto nigdy nie ma tokenów Google, więc wysyłka maili
+(przypomnienia, briefing, drafty) zawsze zwraca 401 `reauth_required` —
+tłumaczone na froncie na czytelny komunikat zamiast dawania złudzenia, że
+funkcja zadziała po prostu po kliknięciu.
+
 **Sheets (arkusze „Osoby” i „Zadania RACI”) tego ograniczenia już nie ma** —
 od 2026-08-02 są obsługiwane przez osobne konto serwisowe (Service Account),
 niezależne od statusu OAuth i logowania usera. Powód zmiany: Sheets API
