@@ -7,6 +7,7 @@ zapisywany jest przez osobne konto serwisowe, patrz app.auth.service_account.
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 
@@ -17,6 +18,16 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import Flow
 
 from app.config import settings
+
+# Dla kont, które połączyły się zanim scope "spreadsheets" został usunięty
+# (patrz commit 4b15b43), Google wciąż dokleja go do odpowiedzi dzięki
+# include_granted_scopes=true w build_authorization_url. oauthlib domyślnie
+# traktuje niezgodność żądanych i zwróconych scope'ów jako twardy błąd
+# (Warning podniesiony jak wyjątek) i wywala /auth/callback 500-tką —
+# ta flaga (odczytywana przez oauthlib dopiero przy fetch_token, więc
+# wystarczy ustawić ją gdziekolwiek przed pierwszym wywołaniem) zmienia to
+# w no-op.
+os.environ.setdefault("OAUTHLIB_RELAX_TOKEN_SCOPE", "1")
 
 SCOPES = [
     "openid",
