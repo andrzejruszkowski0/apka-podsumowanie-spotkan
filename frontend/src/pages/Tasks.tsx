@@ -39,6 +39,9 @@ function raciSummary(raci: TaskRaci): string {
   return parts.join(" · ");
 }
 
+const selectClass =
+  "rounded-md border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500";
+
 function Tasks() {
   const [state, setState] = useState<State>({ kind: "loading" });
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -101,15 +104,15 @@ function Tasks() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-lg font-medium text-gray-900">Zadania</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-white">Zadania</h1>
 
-      <div className="flex flex-wrap items-center gap-4 rounded-lg border border-gray-200 bg-white px-4 py-3">
-        <label className="flex items-center gap-1 text-sm text-gray-600">
+      <div className="flex flex-wrap items-center gap-4 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3">
+        <label className="flex items-center gap-2 text-sm text-zinc-400">
           Status
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}
-            className="rounded-md border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={selectClass}
           >
             <option value="">wszystkie</option>
             <option value="open">otwarte</option>
@@ -117,12 +120,12 @@ function Tasks() {
             <option value="cancelled">anulowane</option>
           </select>
         </label>
-        <label className="flex items-center gap-1 text-sm text-gray-600">
+        <label className="flex items-center gap-2 text-sm text-zinc-400">
           Temat
           <select
             value={topicFilter}
             onChange={(e) => setTopicFilter(e.target.value)}
-            className="rounded-md border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={selectClass}
           >
             <option value="">wszystkie</option>
             {topics.map((t) => (
@@ -132,7 +135,7 @@ function Tasks() {
             ))}
           </select>
         </label>
-        <label className="flex items-center gap-2 text-sm text-gray-600">
+        <label className="flex items-center gap-2 text-sm text-zinc-400">
           <input
             type="checkbox"
             checked={overdueOnly}
@@ -143,28 +146,28 @@ function Tasks() {
         </label>
       </div>
 
-      {state.kind === "loading" && <p className="text-gray-500">Wczytywanie…</p>}
-      {state.kind === "error" && <p className="text-red-600">Błąd: {state.message}</p>}
+      {state.kind === "loading" && <p className="text-zinc-500">Wczytywanie…</p>}
+      {state.kind === "error" && <p className="text-red-400">Błąd: {state.message}</p>}
       {state.kind === "ok" && tasks.length === 0 && (
-        <p className="text-gray-500">Brak zadań spełniających filtry.</p>
+        <p className="text-zinc-500">Brak zadań spełniających filtry.</p>
       )}
       {state.kind === "ok" && tasks.length > 0 && (
-        <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-zinc-800 bg-zinc-900">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 text-left text-xs uppercase text-gray-500">
-                <th className="px-4 py-2">Zrobione</th>
-                <th className="px-4 py-2">Zadanie</th>
-                <th className="px-4 py-2">Temat</th>
-                <th className="px-4 py-2">RACI</th>
-                <th className="px-4 py-2">Deadline</th>
-                <th className="px-4 py-2">Status</th>
+              <tr className="border-b border-zinc-800 text-left text-xs uppercase tracking-wide text-zinc-500">
+                <th className="px-4 py-2.5">Zrobione</th>
+                <th className="px-4 py-2.5">Zadanie</th>
+                <th className="px-4 py-2.5">Temat</th>
+                <th className="px-4 py-2.5">RACI</th>
+                <th className="px-4 py-2.5">Deadline</th>
+                <th className="px-4 py-2.5">Status</th>
               </tr>
             </thead>
             <tbody>
               {tasks.map((t) => (
-                <tr key={t.id} className="border-b border-gray-100 last:border-0">
-                  <td className="px-4 py-2">
+                <tr key={t.id} className="border-b border-zinc-800/60 last:border-0 hover:bg-zinc-800/30">
+                  <td className="px-4 py-2.5">
                     <input
                       type="checkbox"
                       checked={t.status === "done"}
@@ -173,17 +176,17 @@ function Tasks() {
                       className="focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </td>
-                  <td className="px-4 py-2 text-gray-900">{t.description}</td>
-                  <td className="px-4 py-2 text-gray-600">{t.topic_name ?? "—"}</td>
-                  <td className="px-4 py-2 text-gray-600">{raciSummary(t.raci) || "—"}</td>
+                  <td className="px-4 py-2.5 text-zinc-100">{t.description}</td>
+                  <td className="px-4 py-2.5 text-zinc-400">{t.topic_name ?? "—"}</td>
+                  <td className="px-4 py-2.5 text-zinc-400">{raciSummary(t.raci) || "—"}</td>
                   <td
                     className={
-                      "px-4 py-2 " + (isOverdue(t) ? "font-medium text-red-600" : "text-gray-600")
+                      "px-4 py-2.5 " + (isOverdue(t) ? "font-medium text-red-400" : "text-zinc-400")
                     }
                   >
                     {t.deadline ?? "—"}
                   </td>
-                  <td className="px-4 py-2 text-gray-600">{t.status}</td>
+                  <td className="px-4 py-2.5 text-zinc-400">{t.status}</td>
                 </tr>
               ))}
             </tbody>

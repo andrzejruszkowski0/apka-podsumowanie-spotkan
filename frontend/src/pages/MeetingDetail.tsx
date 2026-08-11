@@ -59,6 +59,9 @@ type SendState =
   | { kind: "done" }
   | { kind: "error"; message: string };
 
+const selectClass =
+  "rounded-md border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500";
+
 function DraftPanel({ meetingId }: { meetingId: string }) {
   const [template, setTemplate] = useState<Template>("formal_board");
   const [draft, setDraft] = useState<DraftState>({ kind: "idle" });
@@ -108,11 +111,11 @@ function DraftPanel({ meetingId }: { meetingId: string }) {
   }, [meetingId, draft, subject, body, to, cc]);
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white px-8 py-6 shadow-sm">
-      <h2 className="mb-3 font-medium text-gray-900">Szkic maila podsumowującego</h2>
+    <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-8 py-6">
+      <h2 className="mb-3 font-medium text-zinc-100">Szkic maila podsumowującego</h2>
 
       <div className="flex flex-wrap items-end gap-4">
-        <label className="flex flex-col gap-1 text-sm text-gray-600">
+        <label className="flex flex-col gap-1.5 text-sm text-zinc-400">
           Szablon
           <select
             value={template}
@@ -121,7 +124,7 @@ function DraftPanel({ meetingId }: { meetingId: string }) {
               setDraft({ kind: "idle" });
               setSend({ kind: "idle" });
             }}
-            className="rounded-md border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={selectClass}
           >
             {(Object.keys(TEMPLATE_LABELS) as Template[]).map((t) => (
               <option key={t} value={t}>
@@ -133,63 +136,63 @@ function DraftPanel({ meetingId }: { meetingId: string }) {
         <button
           onClick={generatePreview}
           disabled={draft.kind === "loading"}
-          className="rounded-md bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:opacity-50"
         >
           {draft.kind === "loading" ? "Generuję…" : "Podgląd"}
         </button>
       </div>
 
-      {draft.kind === "error" && <p className="mt-3 text-sm text-red-600">Błąd: {draft.message}</p>}
+      {draft.kind === "error" && <p className="mt-3 text-sm text-red-400">Błąd: {draft.message}</p>}
 
       {draft.kind === "ok" && (
         <div className="mt-4 flex flex-col gap-3">
-          <label className="flex flex-col gap-1 text-sm text-gray-600">
+          <label className="flex flex-col gap-1.5 text-sm text-zinc-400">
             Temat
             <input
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              className="rounded-md border border-gray-300 px-2 py-1 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={selectClass + " text-zinc-100"}
             />
           </label>
-          <label className="flex flex-col gap-1 text-sm text-gray-600">
+          <label className="flex flex-col gap-1.5 text-sm text-zinc-400">
             Treść
             <textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
               rows={12}
-              className="rounded-md border border-gray-300 px-2 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={selectClass + " py-2 text-zinc-100"}
             />
           </label>
 
           <div className="flex flex-wrap items-end gap-4">
-            <label className="flex flex-col gap-1 text-sm text-gray-600">
+            <label className="flex flex-col gap-1.5 text-sm text-zinc-400">
               Do
               <input
                 value={to}
                 onChange={(e) => setTo(e.target.value)}
                 placeholder="adres@przyklad.pl"
-                className="w-64 rounded-md border border-gray-300 px-2 py-1 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={selectClass + " w-64 text-zinc-100 placeholder-zinc-600"}
               />
             </label>
-            <label className="flex flex-col gap-1 text-sm text-gray-600">
+            <label className="flex flex-col gap-1.5 text-sm text-zinc-400">
               Dw (opcjonalnie)
               <input
                 value={cc}
                 onChange={(e) => setCc(e.target.value)}
                 placeholder="adres@przyklad.pl"
-                className="w-64 rounded-md border border-gray-300 px-2 py-1 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={selectClass + " w-64 text-zinc-100 placeholder-zinc-600"}
               />
             </label>
             <button
               onClick={sendDraft}
               disabled={!to.trim() || send.kind === "loading" || send.kind === "done"}
-              className="rounded-md bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+              className="rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:opacity-50"
             >
               {send.kind === "loading" ? "Wysyłam…" : send.kind === "done" ? "Wysłano" : "Wyślij"}
             </button>
           </div>
-          {send.kind === "error" && <p className="text-sm text-red-600">Błąd: {send.message}</p>}
-          {send.kind === "done" && <p className="text-sm text-green-600">Mail wysłany.</p>}
+          {send.kind === "error" && <p className="text-sm text-red-400">Błąd: {send.message}</p>}
+          {send.kind === "done" && <p className="text-sm text-emerald-400">Mail wysłany.</p>}
         </div>
       )}
     </div>
@@ -238,37 +241,37 @@ function MeetingDetail({
   }, [meetingId]);
 
   if (state.kind === "loading") {
-    return <p className="text-gray-500">Wczytywanie…</p>;
+    return <p className="text-zinc-500">Wczytywanie…</p>;
   }
   if (state.kind === "error") {
-    return <p className="text-red-600">Błąd: {state.message}</p>;
+    return <p className="text-red-400">Błąd: {state.message}</p>;
   }
 
   const { meeting } = state;
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-lg border border-gray-200 bg-white px-8 py-6 shadow-sm">
-        <h1 className="text-lg font-medium text-gray-900">{meeting.title}</h1>
-        <p className="text-sm text-gray-500">
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-8 py-6">
+        <h1 className="text-xl font-semibold tracking-tight text-white">{meeting.title}</h1>
+        <p className="text-sm text-zinc-500">
           {meeting.meeting_date} · {meeting.source_type === "audio" ? "audio" : "tekst"}
         </p>
-        <p className="mt-3">
+        <p className="mt-3 text-zinc-300">
           Status:{" "}
           <span
             className={
               meeting.status === "failed"
-                ? "font-medium text-red-600"
+                ? "font-medium text-red-400"
                 : POLLING_STATUSES.has(meeting.status)
-                  ? "font-medium text-amber-600"
-                  : "font-medium text-green-600"
+                  ? "font-medium text-amber-400"
+                  : "font-medium text-emerald-400"
             }
           >
             {STATUS_LABELS[meeting.status] ?? meeting.status}
           </span>
         </p>
         {meeting.error_message && (
-          <p className="mt-2 text-sm text-red-600">{meeting.error_message}</p>
+          <p className="mt-2 text-sm text-red-400">{meeting.error_message}</p>
         )}
         {meeting.status === "awaiting_review" && (
           <a
@@ -277,19 +280,19 @@ function MeetingDetail({
               e.preventDefault();
               navigate(`/meetings/${meeting.id}/review`);
             }}
-            className="mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700"
+            className="mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500"
           >
             Przejdź do weryfikacji
           </a>
         )}
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-white px-8 py-6 shadow-sm">
-        <h2 className="mb-3 font-medium text-gray-900">Transkrypt</h2>
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-8 py-6">
+        <h2 className="mb-3 font-medium text-zinc-100">Transkrypt</h2>
         {meeting.transcript_parts.length === 0 ? (
-          <p className="text-gray-500">Transkrypt jeszcze niedostępny.</p>
+          <p className="text-zinc-500">Transkrypt jeszcze niedostępny.</p>
         ) : (
-          <pre className="whitespace-pre-wrap font-sans text-sm text-gray-800">
+          <pre className="whitespace-pre-wrap font-sans text-sm text-zinc-300">
             {meeting.transcript}
           </pre>
         )}

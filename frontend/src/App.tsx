@@ -66,9 +66,10 @@ function NavLink({
         navigate(to);
       }}
       className={
-        active
-          ? "font-medium text-gray-900"
-          : "text-gray-500 hover:text-gray-900"
+        "rounded-md px-3 py-1.5 text-sm font-medium transition-colors " +
+        (active
+          ? "bg-zinc-800 text-white"
+          : "text-zinc-400 hover:text-zinc-100")
       }
     >
       {children}
@@ -83,7 +84,7 @@ function App() {
   const meetingMatch = path.match(/^\/meetings\/([^/]+)$/);
 
   if (session === undefined) {
-    return <div className="min-h-screen bg-gray-50" />;
+    return <div className="min-h-screen bg-black" />;
   }
   if (session === null) {
     return <Login />;
@@ -113,8 +114,11 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="flex items-center gap-6 border-b border-gray-200 bg-white px-8 py-4">
+    <div className="min-h-screen bg-black">
+      <nav className="sticky top-0 z-10 flex items-center gap-2 border-b border-zinc-800 bg-black/95 px-8 py-3 backdrop-blur">
+        <span className="mr-4 text-sm font-semibold tracking-tight text-white">
+          Analiza spotkań
+        </span>
         <NavLink to="/" path={path} navigate={navigate}>
           Dashboard
         </NavLink>
@@ -135,12 +139,12 @@ function App() {
         </NavLink>
         <button
           onClick={() => supabase.auth.signOut()}
-          className="ml-auto text-gray-500 hover:text-gray-900"
+          className="ml-auto rounded-md px-3 py-1.5 text-sm font-medium text-zinc-400 hover:text-zinc-100"
         >
           Wyloguj
         </button>
       </nav>
-      <div className={(wide ? "max-w-4xl" : "max-w-2xl") + " mx-auto py-10 px-4"}>{page}</div>
+      <div className={(wide ? "max-w-4xl" : "max-w-2xl") + " mx-auto px-4 py-10"}>{page}</div>
     </div>
   );
 }

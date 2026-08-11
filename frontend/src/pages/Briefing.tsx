@@ -75,10 +75,10 @@ function Briefing() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-lg font-medium text-gray-900">Briefing przed spotkaniem</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-white">Briefing przed spotkaniem</h1>
 
-      <div className="flex flex-wrap items-end gap-4 rounded-lg border border-gray-200 bg-white px-4 py-3">
-        <label className="flex flex-col gap-1 text-sm text-gray-600">
+      <div className="flex flex-wrap items-end gap-4 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3">
+        <label className="flex flex-col gap-1.5 text-sm text-zinc-400">
           Temat
           <select
             value={topicId}
@@ -87,7 +87,7 @@ function Briefing() {
               setPreview({ kind: "idle" });
               setSend({ kind: "idle" });
             }}
-            className="rounded-md border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="rounded-md border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">— wybierz —</option>
             {topics.map((t) => (
@@ -100,31 +100,31 @@ function Briefing() {
         <button
           onClick={generatePreview}
           disabled={!topicId || preview.kind === "loading"}
-          className="rounded-md bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+          className="rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:opacity-50"
         >
           {preview.kind === "loading" ? "Generuję…" : "Podgląd"}
         </button>
       </div>
 
-      {preview.kind === "error" && <p className="text-sm text-red-600">Błąd: {preview.message}</p>}
+      {preview.kind === "error" && <p className="text-sm text-red-400">Błąd: {preview.message}</p>}
 
       {preview.kind === "ok" && (
-        <div className="rounded-lg border border-gray-200 bg-white px-4 py-3">
-          <p className="text-xs uppercase text-gray-500">Temat maila</p>
-          <p className="mb-3 text-gray-900">{preview.preview.subject}</p>
-          <p className="text-xs uppercase text-gray-500">Treść</p>
-          <pre className="whitespace-pre-wrap font-sans text-sm text-gray-900">{preview.preview.body}</pre>
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3">
+          <p className="text-xs uppercase tracking-wide text-zinc-500">Temat maila</p>
+          <p className="mb-3 text-zinc-100">{preview.preview.subject}</p>
+          <p className="text-xs uppercase tracking-wide text-zinc-500">Treść</p>
+          <pre className="whitespace-pre-wrap font-sans text-sm text-zinc-100">{preview.preview.body}</pre>
 
           <div className="mt-4 flex items-center gap-3">
             <button
               onClick={sendBriefing}
               disabled={send.kind === "loading" || send.kind === "done"}
-              className="rounded-md bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+              className="rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:opacity-50"
             >
               {send.kind === "loading" ? "Wysyłam…" : send.kind === "done" ? "Wysłano" : "Wyślij"}
             </button>
-            {send.kind === "error" && <p className="text-sm text-red-600">Błąd: {send.message}</p>}
-            {send.kind === "done" && <p className="text-sm text-green-600">Briefing wysłany.</p>}
+            {send.kind === "error" && <p className="text-sm text-red-400">Błąd: {send.message}</p>}
+            {send.kind === "done" && <p className="text-sm text-emerald-400">Briefing wysłany.</p>}
           </div>
         </div>
       )}

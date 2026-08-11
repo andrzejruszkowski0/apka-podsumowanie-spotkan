@@ -64,47 +64,49 @@ function Settings() {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-lg border border-gray-200 bg-white px-8 py-6 shadow-sm">
+      <h1 className="text-2xl font-semibold tracking-tight text-white">Ustawienia</h1>
+
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-8 py-6">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <h2 className="font-medium text-gray-900">Sync osób z arkusza</h2>
-            <p className="text-sm text-gray-500">
+            <h2 className="font-medium text-zinc-100">Sync osób z arkusza</h2>
+            <p className="text-sm text-zinc-500">
               Wczytuje arkusz „Osoby” i aktualizuje listę (upsert po emailu).
             </p>
           </div>
           <button
             onClick={runSync}
             disabled={sync.kind === "loading"}
-            className="shrink-0 rounded-md bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+            className="shrink-0 rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:opacity-50"
           >
             {sync.kind === "loading" ? "Synchronizuję…" : "Sync teraz"}
           </button>
         </div>
         {sync.kind === "done" && (
-          <p className="text-sm text-green-600 mt-3">
+          <p className="mt-3 text-sm text-emerald-400">
             Zaktualizowano {sync.upserted}, dezaktywowano {sync.deactivated}.
           </p>
         )}
         {sync.kind === "error" && (
-          <p className="text-sm text-red-600 mt-3">Błąd: {sync.message}</p>
+          <p className="mt-3 text-sm text-red-400">Błąd: {sync.message}</p>
         )}
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-white px-8 py-6 shadow-sm">
-        <h2 className="font-medium text-gray-900 mb-3">Osoby (aktywne)</h2>
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-8 py-6">
+        <h2 className="mb-3 font-medium text-zinc-100">Osoby (aktywne)</h2>
         {people.kind === "loading" && (
-          <p className="text-gray-500">Wczytywanie…</p>
+          <p className="text-zinc-500">Wczytywanie…</p>
         )}
         {people.kind === "error" && (
-          <p className="text-red-600">Błąd: {people.message}</p>
+          <p className="text-red-400">Błąd: {people.message}</p>
         )}
         {people.kind === "ok" && people.people.length === 0 && (
-          <p className="text-gray-500">Brak osób — kliknij „Sync teraz”.</p>
+          <p className="text-zinc-500">Brak osób — kliknij „Sync teraz”.</p>
         )}
         {people.kind === "ok" && people.people.length > 0 && (
-          <table className="w-full text-sm text-left">
+          <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-gray-200 text-gray-500">
+              <tr className="border-b border-zinc-800 text-xs uppercase tracking-wide text-zinc-500">
                 <th className="py-2 pr-4 font-medium">Imię i nazwisko</th>
                 <th className="py-2 pr-4 font-medium">Email</th>
                 <th className="py-2 pr-4 font-medium">Aliasy</th>
@@ -113,13 +115,13 @@ function Settings() {
             </thead>
             <tbody>
               {people.people.map((p) => (
-                <tr key={p.id} className="border-b border-gray-100">
-                  <td className="py-2 pr-4 text-gray-900">{p.full_name}</td>
-                  <td className="py-2 pr-4 text-gray-500">{p.email}</td>
-                  <td className="py-2 pr-4 text-gray-500">
+                <tr key={p.id} className="border-b border-zinc-800/60 last:border-0">
+                  <td className="py-2 pr-4 text-zinc-100">{p.full_name}</td>
+                  <td className="py-2 pr-4 text-zinc-400">{p.email}</td>
+                  <td className="py-2 pr-4 text-zinc-400">
                     {p.aliases.join(", ")}
                   </td>
-                  <td className="py-2 text-gray-500">{p.org ?? "—"}</td>
+                  <td className="py-2 text-zinc-400">{p.org ?? "—"}</td>
                 </tr>
               ))}
             </tbody>

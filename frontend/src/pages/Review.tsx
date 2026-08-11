@@ -56,7 +56,7 @@ function computeDecisionUnresolved(d: ReviewDecision): boolean {
 }
 
 const inputClass =
-  "rounded-md border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500";
+  "rounded-md border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500";
 
 function ConfidenceBadge({ value }: { value: number | null }) {
   if (value === null) return null;
@@ -65,7 +65,7 @@ function ConfidenceBadge({ value }: { value: number | null }) {
     <span
       className={
         "rounded px-1.5 py-0.5 text-xs font-medium " +
-        (low ? "bg-amber-100 text-amber-800" : "bg-gray-100 text-gray-500")
+        (low ? "bg-amber-500/15 text-amber-300" : "bg-zinc-800 text-zinc-400")
       }
     >
       pewność: {Math.round(value * 100)}%
@@ -119,13 +119,13 @@ function PersonChecklist({
   return (
     <div className="flex flex-col gap-1">
       {rawNames.length > 0 && (
-        <p className="text-xs text-gray-500">AI wskazało: {rawNames.join(", ")}</p>
+        <p className="text-xs text-zinc-500">AI wskazało: {rawNames.join(", ")}</p>
       )}
       <div className="flex flex-wrap gap-2">
         {people.map((p) => (
           <label
             key={p.id}
-            className="flex items-center gap-1 rounded border border-gray-200 px-2 py-1 text-xs"
+            className="flex items-center gap-1 rounded border border-zinc-700 px-2 py-1 text-xs text-zinc-300"
           >
             <input
               type="checkbox"
@@ -156,8 +156,12 @@ function TaskCard({
   return (
     <div
       className={
-        "rounded-lg border px-4 py-3 " +
-        (unresolved ? "border-red-300 bg-red-50" : task.ai_confidence !== null && task.ai_confidence < 0.7 ? "border-amber-300 bg-amber-50" : "border-gray-200 bg-white")
+        "rounded-xl border px-4 py-3 " +
+        (unresolved
+          ? "border-red-500/40 bg-red-500/[0.06]"
+          : task.ai_confidence !== null && task.ai_confidence < 0.7
+            ? "border-amber-500/40 bg-amber-500/[0.06]"
+            : "border-zinc-800 bg-zinc-900")
       }
     >
       <div className="flex items-start justify-between gap-3">
@@ -169,14 +173,14 @@ function TaskCard({
         />
         <button
           onClick={onDelete}
-          className="shrink-0 rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="shrink-0 rounded-md border border-zinc-700 px-2 py-1 text-xs text-zinc-300 hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           Usuń
         </button>
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-3">
-        <label className="flex items-center gap-1 text-xs text-gray-600">
+        <label className="flex items-center gap-1 text-xs text-zinc-500">
           Deadline
           <input
             type="date"
@@ -187,14 +191,14 @@ function TaskCard({
         </label>
         <ConfidenceBadge value={task.ai_confidence} />
         {unresolved && (
-          <span className="rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-700">
+          <span className="rounded bg-red-500/15 px-1.5 py-0.5 text-xs font-medium text-red-300">
             nierozwiązane nazwisko
           </span>
         )}
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-3">
-        <label className="flex flex-col gap-1 text-xs text-gray-600">
+        <label className="flex flex-col gap-1 text-xs text-zinc-500">
           R (wykonawca)
           <PersonSelect
             value={task.raci.R.person_id}
@@ -203,7 +207,7 @@ function TaskCard({
             rawLabel={task.raci.R.raw}
           />
         </label>
-        <label className="flex flex-col gap-1 text-xs text-gray-600">
+        <label className="flex flex-col gap-1 text-xs text-zinc-500">
           A (odpowiedzialny)
           <PersonSelect
             value={task.raci.A.person_id}
@@ -216,7 +220,7 @@ function TaskCard({
 
       <div className="mt-3 grid grid-cols-2 gap-3">
         <div>
-          <span className="text-xs text-gray-600">C (konsultowani)</span>
+          <span className="text-xs text-zinc-500">C (konsultowani)</span>
           <PersonChecklist
             selected={task.raci.C.person_ids}
             onChange={(ids) => onChange({ ...task, raci: { ...task.raci, C: { ...task.raci.C, person_ids: ids } } })}
@@ -225,7 +229,7 @@ function TaskCard({
           />
         </div>
         <div>
-          <span className="text-xs text-gray-600">I (informowani)</span>
+          <span className="text-xs text-zinc-500">I (informowani)</span>
           <PersonChecklist
             selected={task.raci.I.person_ids}
             onChange={(ids) => onChange({ ...task, raci: { ...task.raci, I: { ...task.raci.I, person_ids: ids } } })}
@@ -237,10 +241,10 @@ function TaskCard({
 
       {task.quote && (
         <details className="mt-2">
-          <summary className="cursor-pointer text-xs text-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+          <summary className="cursor-pointer text-xs text-zinc-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
             Cytat uzasadniający
           </summary>
-          <p className="mt-1 text-xs italic text-gray-600">„{task.quote}”</p>
+          <p className="mt-1 text-xs italic text-zinc-400">„{task.quote}”</p>
         </details>
       )}
     </div>
@@ -262,8 +266,12 @@ function DecisionCard({
   return (
     <div
       className={
-        "rounded-lg border px-4 py-3 " +
-        (unresolved ? "border-red-300 bg-red-50" : decision.ai_confidence !== null && decision.ai_confidence < 0.7 ? "border-amber-300 bg-amber-50" : "border-gray-200 bg-white")
+        "rounded-xl border px-4 py-3 " +
+        (unresolved
+          ? "border-red-500/40 bg-red-500/[0.06]"
+          : decision.ai_confidence !== null && decision.ai_confidence < 0.7
+            ? "border-amber-500/40 bg-amber-500/[0.06]"
+            : "border-zinc-800 bg-zinc-900")
       }
     >
       <div className="flex items-start justify-between gap-3">
@@ -275,14 +283,14 @@ function DecisionCard({
         />
         <button
           onClick={onDelete}
-          className="shrink-0 rounded-md border border-gray-300 px-2 py-1 text-xs text-gray-600 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="shrink-0 rounded-md border border-zinc-700 px-2 py-1 text-xs text-zinc-300 hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           Usuń
         </button>
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-3">
-        <label className="flex items-center gap-1 text-xs text-gray-600">
+        <label className="flex items-center gap-1 text-xs text-zinc-500">
           Data
           <input
             type="date"
@@ -291,7 +299,7 @@ function DecisionCard({
             className={inputClass}
           />
         </label>
-        <label className="flex items-center gap-1 text-xs text-gray-600">
+        <label className="flex items-center gap-1 text-xs text-zinc-500">
           Kategoria
           <input
             type="text"
@@ -302,13 +310,13 @@ function DecisionCard({
         </label>
         <ConfidenceBadge value={decision.ai_confidence} />
         {unresolved && (
-          <span className="rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-700">
+          <span className="rounded bg-red-500/15 px-1.5 py-0.5 text-xs font-medium text-red-300">
             nierozwiązane nazwisko
           </span>
         )}
       </div>
 
-      <label className="mt-3 flex flex-col gap-1 text-xs text-gray-600">
+      <label className="mt-3 flex flex-col gap-1 text-xs text-zinc-500">
         Kto zdecydował
         <PersonSelect
           value={decision.decided_by.person_id}
@@ -320,10 +328,10 @@ function DecisionCard({
 
       {decision.quote && (
         <details className="mt-2">
-          <summary className="cursor-pointer text-xs text-gray-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+          <summary className="cursor-pointer text-xs text-zinc-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
             Cytat uzasadniający
           </summary>
-          <p className="mt-1 text-xs italic text-gray-600">„{decision.quote}”</p>
+          <p className="mt-1 text-xs italic text-zinc-400">„{decision.quote}”</p>
         </details>
       )}
     </div>
@@ -432,11 +440,11 @@ function Review({ meetingId, navigate }: { meetingId: string; navigate: (to: str
     }
   }, [meetingId, tasks, decisions, deletedTaskIds, deletedDecisionIds, navigate]);
 
-  if (state.kind === "loading") return <p className="text-gray-500">Wczytywanie…</p>;
-  if (state.kind === "error") return <p className="text-red-600">Błąd: {state.message}</p>;
+  if (state.kind === "loading") return <p className="text-zinc-500">Wczytywanie…</p>;
+  if (state.kind === "error") return <p className="text-red-400">Błąd: {state.message}</p>;
   if (state.kind === "not_reviewable") {
     return (
-      <p className="text-gray-600">
+      <p className="text-zinc-400">
         To spotkanie nie jest w trakcie weryfikacji (status: {state.status}).{" "}
         <a
           href={`/meetings/${meetingId}`}
@@ -444,7 +452,7 @@ function Review({ meetingId, navigate }: { meetingId: string; navigate: (to: str
             e.preventDefault();
             navigate(`/meetings/${meetingId}`);
           }}
-          className="text-blue-600 hover:underline"
+          className="text-blue-400 hover:underline"
         >
           Wróć do spotkania
         </a>
@@ -456,22 +464,24 @@ function Review({ meetingId, navigate }: { meetingId: string; navigate: (to: str
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-medium text-gray-900">Weryfikacja</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-white">Weryfikacja</h1>
         <button
           onClick={approve}
           disabled={saving || anyUnresolved}
-          className="rounded-md bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
           title={anyUnresolved ? "Rozwiąż wszystkie nazwiska przed zatwierdzeniem" : undefined}
         >
           {saving ? "Zapisywanie…" : "Zatwierdź i zapisz"}
         </button>
       </div>
-      {saveError && <p className="text-sm text-red-600">Błąd: {saveError}</p>}
+      {saveError && <p className="text-sm text-red-400">Błąd: {saveError}</p>}
 
       <section>
-        <h2 className="mb-2 font-medium text-gray-900">Zadania ({tasks.length})</h2>
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-zinc-500">
+          Zadania ({tasks.length})
+        </h2>
         <div className="flex flex-col gap-3">
-          {tasks.length === 0 && <p className="text-sm text-gray-500">Brak zadań.</p>}
+          {tasks.length === 0 && <p className="text-sm text-zinc-500">Brak zadań.</p>}
           {tasks.map((t) => (
             <TaskCard
               key={t.id}
@@ -485,9 +495,11 @@ function Review({ meetingId, navigate }: { meetingId: string; navigate: (to: str
       </section>
 
       <section>
-        <h2 className="mb-2 font-medium text-gray-900">Decyzje ({decisions.length})</h2>
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-zinc-500">
+          Decyzje ({decisions.length})
+        </h2>
         <div className="flex flex-col gap-3">
-          {decisions.length === 0 && <p className="text-sm text-gray-500">Brak decyzji.</p>}
+          {decisions.length === 0 && <p className="text-sm text-zinc-500">Brak decyzji.</p>}
           {decisions.map((d) => (
             <DecisionCard
               key={d.id}

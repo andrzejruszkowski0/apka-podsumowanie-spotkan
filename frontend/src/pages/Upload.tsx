@@ -17,6 +17,8 @@ function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+const inputClass = "rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-zinc-100";
+
 function Upload({ onCreated }: { onCreated: (meetingId: string) => void }) {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [title, setTitle] = useState("");
@@ -94,38 +96,38 @@ function Upload({ onCreated }: { onCreated: (meetingId: string) => void }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white px-8 py-6 shadow-sm"
+      className="flex flex-col gap-4 rounded-xl border border-zinc-800 bg-zinc-900 px-8 py-6"
     >
-      <h1 className="text-lg font-medium text-gray-900">Nowe spotkanie</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-white">Nowe spotkanie</h1>
 
-      <label className="flex flex-col gap-1">
-        <span className="text-sm font-medium text-gray-700">Tytuł</span>
+      <label className="flex flex-col gap-1.5">
+        <span className="text-sm font-medium text-zinc-400">Tytuł</span>
         <input
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="rounded-md border border-gray-300 px-3 py-2"
+          className={inputClass}
           required
         />
       </label>
 
       <div className="flex gap-4">
-        <label className="flex flex-1 flex-col gap-1">
-          <span className="text-sm font-medium text-gray-700">Data spotkania</span>
+        <label className="flex flex-1 flex-col gap-1.5">
+          <span className="text-sm font-medium text-zinc-400">Data spotkania</span>
           <input
             type="date"
             value={meetingDate}
             onChange={(e) => setMeetingDate(e.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2"
+            className={inputClass}
             required
           />
         </label>
-        <label className="flex flex-1 flex-col gap-1">
-          <span className="text-sm font-medium text-gray-700">Temat / dostawca</span>
+        <label className="flex flex-1 flex-col gap-1.5">
+          <span className="text-sm font-medium text-zinc-400">Temat / dostawca</span>
           <select
             value={topicId}
             onChange={(e) => setTopicId(e.target.value)}
-            className="rounded-md border border-gray-300 px-3 py-2"
+            className={inputClass}
           >
             <option value="">— brak —</option>
             {topics.map((t) => (
@@ -138,7 +140,7 @@ function Upload({ onCreated }: { onCreated: (meetingId: string) => void }) {
       </div>
 
       <div className="flex gap-4">
-        <label className="flex items-center gap-2">
+        <label className="flex items-center gap-2 text-zinc-200">
           <input
             type="radio"
             checked={sourceType === "audio"}
@@ -146,7 +148,7 @@ function Upload({ onCreated }: { onCreated: (meetingId: string) => void }) {
           />
           <span>Nagranie audio</span>
         </label>
-        <label className="flex items-center gap-2">
+        <label className="flex items-center gap-2 text-zinc-200">
           <input
             type="radio"
             checked={sourceType === "text"}
@@ -157,8 +159,8 @@ function Upload({ onCreated }: { onCreated: (meetingId: string) => void }) {
       </div>
 
       {sourceType === "audio" ? (
-        <label className="flex flex-col gap-1">
-          <span className="text-sm font-medium text-gray-700">
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium text-zinc-400">
             Pliki audio (.mp3 .m4a .wav .aac .ogg .flac) — dla sesji &gt; 1h wybierz kilka
             plików w kolejności chronologicznej
           </span>
@@ -167,10 +169,10 @@ function Upload({ onCreated }: { onCreated: (meetingId: string) => void }) {
             multiple
             accept=".mp3,.m4a,.wav,.aac,.ogg,.flac"
             onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
-            className="rounded-md border border-gray-300 px-3 py-2"
+            className={inputClass + " text-zinc-300 file:mr-3 file:rounded file:border-0 file:bg-zinc-800 file:px-3 file:py-1.5 file:text-zinc-100"}
           />
           {files.length > 0 && (
-            <ul className="mt-1 text-sm text-gray-500">
+            <ul className="mt-1 text-sm text-zinc-500">
               {files.map((f, i) => (
                 <li key={f.name + i}>
                   część {i + 1}: {f.name}
@@ -180,23 +182,23 @@ function Upload({ onCreated }: { onCreated: (meetingId: string) => void }) {
           )}
         </label>
       ) : (
-        <label className="flex flex-col gap-1">
-          <span className="text-sm font-medium text-gray-700">Treść spotkania</span>
+        <label className="flex flex-col gap-1.5">
+          <span className="text-sm font-medium text-zinc-400">Treść spotkania</span>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
             rows={10}
-            className="rounded-md border border-gray-300 px-3 py-2 font-mono text-sm"
+            className={inputClass + " font-mono text-sm"}
           />
         </label>
       )}
 
-      {submit.kind === "error" && <p className="text-sm text-red-600">Błąd: {submit.message}</p>}
+      {submit.kind === "error" && <p className="text-sm text-red-400">Błąd: {submit.message}</p>}
 
       <button
         type="submit"
         disabled={submit.kind === "submitting"}
-        className="self-start rounded-md bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700 disabled:opacity-50"
+        className="self-start rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:opacity-50"
       >
         {submit.kind === "submitting" ? "Wysyłanie…" : "Prześlij i rozpocznij transkrypcję"}
       </button>

@@ -76,15 +76,15 @@ function Decisions() {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-lg font-medium text-gray-900">Rejestr decyzji</h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-white">Rejestr decyzji</h1>
 
-      <div className="flex flex-wrap items-center gap-4 rounded-lg border border-gray-200 bg-white px-4 py-3">
-        <label className="flex items-center gap-1 text-sm text-gray-600">
+      <div className="flex flex-wrap items-center gap-4 rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3">
+        <label className="flex items-center gap-2 text-sm text-zinc-400">
           Temat
           <select
             value={topicFilter}
             onChange={(e) => setTopicFilter(e.target.value)}
-            className="rounded-md border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="rounded-md border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">wszystkie</option>
             {topics.map((t) => (
@@ -100,11 +100,11 @@ function Decisions() {
             value={queryInput}
             onChange={(e) => setQueryInput(e.target.value)}
             placeholder="Szukaj semantycznie…"
-            className="rounded-md border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="rounded-md border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
             type="submit"
-            className="rounded-md bg-blue-600 px-3 py-1 text-sm font-medium text-white hover:bg-blue-700"
+            className="rounded-md bg-blue-600 px-3 py-1 text-sm font-medium text-white hover:bg-blue-500"
           >
             Szukaj
           </button>
@@ -112,7 +112,7 @@ function Decisions() {
             <button
               type="button"
               onClick={clearSearch}
-              className="rounded-md border border-gray-300 px-3 py-1 text-sm text-gray-600 hover:bg-gray-100"
+              className="rounded-md border border-zinc-700 px-3 py-1 text-sm text-zinc-300 hover:bg-zinc-800"
             >
               Wyczyść
             </button>
@@ -121,20 +121,20 @@ function Decisions() {
       </div>
 
       {activeQuery && (
-        <p className="text-sm text-gray-500">Wyniki wyszukiwania semantycznego dla „{activeQuery}”.</p>
+        <p className="text-sm text-zinc-500">Wyniki wyszukiwania semantycznego dla „{activeQuery}”.</p>
       )}
 
-      {state.kind === "loading" && <p className="text-gray-500">Wczytywanie…</p>}
-      {state.kind === "error" && <p className="text-red-600">Błąd: {state.message}</p>}
+      {state.kind === "loading" && <p className="text-zinc-500">Wczytywanie…</p>}
+      {state.kind === "error" && <p className="text-red-400">Błąd: {state.message}</p>}
       {state.kind === "ok" && decisions.length === 0 && (
-        <p className="text-gray-500">Brak decyzji spełniających kryteria.</p>
+        <p className="text-zinc-500">Brak decyzji spełniających kryteria.</p>
       )}
       {state.kind === "ok" && decisions.length > 0 && (
         <div className="flex flex-col gap-3">
           {decisions.map((d) => (
-            <div key={d.id} className="rounded-lg border border-gray-200 bg-white px-4 py-3">
-              <p className="text-gray-900">{d.statement}</p>
-              <div className="mt-2 flex flex-wrap gap-3 text-xs text-gray-500">
+            <div key={d.id} className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3">
+              <p className="text-zinc-100">{d.statement}</p>
+              <div className="mt-2 flex flex-wrap gap-3 text-xs text-zinc-500">
                 <span>{d.decided_on}</span>
                 {d.topic_name && <span>· {d.topic_name}</span>}
                 {d.category && <span>· {d.category}</span>}

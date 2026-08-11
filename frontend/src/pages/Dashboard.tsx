@@ -92,43 +92,44 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-lg border border-gray-200 bg-white px-8 py-6 shadow-sm text-center">
-        <h1 className="text-xl font-medium text-gray-900 mb-2">
-          Analiza spotkań
-        </h1>
+      <h1 className="text-2xl font-semibold tracking-tight text-white">
+        Analiza spotkań
+      </h1>
+
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-8 py-6">
         {health.kind === "loading" && (
-          <p className="text-gray-500">Sprawdzanie backendu…</p>
+          <p className="text-zinc-500">Sprawdzanie backendu…</p>
         )}
         {health.kind === "ok" && (
-          <p className="text-green-600 font-semibold">{health.status}</p>
+          <p className="font-medium text-emerald-400">{health.status}</p>
         )}
         {health.kind === "error" && (
-          <p className="text-red-600">Błąd: {health.message}</p>
+          <p className="text-red-400">Błąd: {health.message}</p>
         )}
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-white px-8 py-6 shadow-sm text-center">
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-8 py-6">
         {auth.kind === "loading" && (
-          <p className="text-gray-500">Sprawdzanie sesji…</p>
+          <p className="text-zinc-500">Sprawdzanie sesji…</p>
         )}
         {auth.kind === "error" && (
-          <p className="text-red-600">Błąd: {auth.message}</p>
+          <p className="text-red-400">Błąd: {auth.message}</p>
         )}
         {auth.kind === "anonymous" && (
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-start gap-2">
             <a
               href={`${API_URL}/auth/login`}
-              className="inline-block rounded-md bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700"
+              className="inline-block rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500"
             >
               Zaloguj się przez Google
             </a>
-            <p className="max-w-sm text-xs text-gray-500">
+            <p className="max-w-sm text-xs text-zinc-500">
               Logowanie Google jest w trybie testowym — dostęp mają tylko
               zaproszeni testerzy. Chcesz tylko zobaczyć appkę?
             </p>
             <button
               onClick={startDemo}
-              className="text-sm text-blue-600 underline hover:text-blue-800"
+              className="text-sm text-blue-400 underline hover:text-blue-300"
             >
               Wypróbuj demo bez logowania Google
             </button>
@@ -136,28 +137,28 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
         )}
         {auth.kind === "authenticated" && (
           <div className="text-left">
-            <p className="text-gray-900">
+            <p className="text-zinc-100">
               Zalogowano jako{" "}
-              <span className="font-semibold">
+              <span className="font-semibold text-white">
                 {auth.me.display_name ?? auth.me.email}
               </span>
             </p>
-            <p className="text-sm text-gray-500">{auth.me.email}</p>
-            <p className="text-sm mt-2">
+            <p className="text-sm text-zinc-500">{auth.me.email}</p>
+            <p className="mt-2 text-sm text-zinc-400">
               Dostęp do Gmail/Sheets:{" "}
               {auth.me.reauth_required ? (
-                <span className="text-red-600 font-medium">
+                <span className="font-medium text-red-400">
                   wymaga ponownej zgody
                 </span>
               ) : auth.me.google_connected ? (
-                <span className="text-green-600 font-medium">aktywny</span>
+                <span className="font-medium text-emerald-400">aktywny</span>
               ) : (
-                <span className="text-gray-500">nieznany</span>
+                <span className="text-zinc-500">nieznany</span>
               )}
             </p>
             <button
               onClick={logout}
-              className="mt-4 rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-100"
+              className="mt-4 rounded-md border border-zinc-700 px-4 py-2 text-zinc-300 hover:bg-zinc-800"
             >
               Wyloguj
             </button>
@@ -165,14 +166,16 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
         )}
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-white px-8 py-6 shadow-sm">
-        <h2 className="mb-3 font-medium text-gray-900">Ostatnie spotkania</h2>
-        {meetings.kind === "loading" && <p className="text-gray-500">Wczytywanie…</p>}
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-8 py-6">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500">
+          Ostatnie spotkania
+        </h2>
+        {meetings.kind === "loading" && <p className="text-zinc-500">Wczytywanie…</p>}
         {meetings.kind === "error" && (
-          <p className="text-red-600">Błąd: {meetings.message}</p>
+          <p className="text-red-400">Błąd: {meetings.message}</p>
         )}
         {meetings.kind === "ok" && meetings.meetings.length === 0 && (
-          <p className="text-gray-500">
+          <p className="text-zinc-500">
             Brak spotkań —{" "}
             <a
               href="/upload"
@@ -180,7 +183,7 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
                 e.preventDefault();
                 navigate("/upload");
               }}
-              className="text-blue-600 hover:underline"
+              className="text-blue-400 hover:underline"
             >
               dodaj pierwsze
             </a>
@@ -188,7 +191,7 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
           </p>
         )}
         {meetings.kind === "ok" && meetings.meetings.length > 0 && (
-          <ul className="flex flex-col gap-2">
+          <ul className="flex flex-col divide-y divide-zinc-800">
             {meetings.meetings.map((m) => (
               <li key={m.id}>
                 <a
@@ -197,10 +200,10 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
                     e.preventDefault();
                     navigate(`/meetings/${m.id}`);
                   }}
-                  className="flex items-center justify-between gap-4 text-sm hover:underline"
+                  className="flex items-center justify-between gap-4 py-2.5 text-sm hover:text-white"
                 >
-                  <span className="text-gray-900">{m.title}</span>
-                  <span className="text-gray-500">
+                  <span className="text-zinc-100">{m.title}</span>
+                  <span className="text-zinc-500">
                     {m.meeting_date} · {m.status}
                   </span>
                 </a>
