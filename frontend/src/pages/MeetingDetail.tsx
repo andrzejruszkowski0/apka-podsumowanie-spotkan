@@ -2,6 +2,7 @@ import { ArrowRight, Eye, PaperPlaneTilt } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { apiFetch, errorDetail } from "../lib/api";
 import { Badge } from "../components/Badge";
+import { ErrorState, LoadingState } from "../components/States";
 import { btnPrimary } from "../lib/styles";
 
 type TranscriptPart = { part_index: number; content: string };
@@ -63,7 +64,7 @@ type SendState =
   | { kind: "error"; message: string };
 
 const selectClass =
-  "rounded-md border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500";
+  "rounded-md border border-zinc-500 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500";
 
 function DraftPanel({ meetingId }: { meetingId: string }) {
   const [template, setTemplate] = useState<Template>("formal_board");
@@ -114,7 +115,7 @@ function DraftPanel({ meetingId }: { meetingId: string }) {
   }, [meetingId, draft, subject, body, to, cc]);
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-8 py-6">
+    <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 sm:px-8 py-6">
       <h2 className="mb-3 font-medium text-zinc-100">Szkic maila podsumowującego</h2>
 
       <div className="flex flex-wrap items-end gap-4">
@@ -175,7 +176,7 @@ function DraftPanel({ meetingId }: { meetingId: string }) {
                 value={to}
                 onChange={(e) => setTo(e.target.value)}
                 placeholder="adres@przyklad.pl"
-                className={selectClass + " w-64 text-zinc-100 placeholder-zinc-600"}
+                className={selectClass + " w-64 text-zinc-100 placeholder-zinc-400"}
               />
             </label>
             <label className="flex flex-col gap-1.5 text-sm text-zinc-400">
@@ -184,7 +185,7 @@ function DraftPanel({ meetingId }: { meetingId: string }) {
                 value={cc}
                 onChange={(e) => setCc(e.target.value)}
                 placeholder="adres@przyklad.pl"
-                className={selectClass + " w-64 text-zinc-100 placeholder-zinc-600"}
+                className={selectClass + " w-64 text-zinc-100 placeholder-zinc-400"}
               />
             </label>
             <button
@@ -212,6 +213,10 @@ function MeetingDetail({
   navigate: (to: string) => void;
 }) {
   const [state, setState] = useState<State>({ kind: "loading" });
+  // Wybija cały efekt na nowo bez zmiany innych zależności — jedyny czysty
+  // sposób na retry, gdy `load` żyje wewnątrz efektu (rekurencyjny setTimeout
+  // do pollingu musi widzieć świeże domknięcie `cancelled`/`timer`).
+  const [retryTick, setRetryTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -243,20 +248,24 @@ function MeetingDetail({
       cancelled = true;
       if (timer) clearTimeout(timer);
     };
-  }, [meetingId]);
+  }, [meetingId, retryTick]);
 
   if (state.kind === "loading") {
-    return <p className="text-zinc-500">Wczytywanie…</p>;
+    return <LoadingState />;
   }
   if (state.kind === "error") {
-    return <p className="text-red-400">Błąd: {state.message}</p>;
+    const retry = () => {
+      setState({ kind: "loading" });
+      setRetryTick((v) => v + 1);
+    };
+    return <ErrorState message={state.message} onRetry={retry} />;
   }
 
   const { meeting } = state;
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-8 py-6">
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 sm:px-8 py-6">
         <h1 className="text-xl font-semibold tracking-tight text-white">{meeting.title}</h1>
         <p className="text-sm text-zinc-500">
           {meeting.meeting_date} · {meeting.source_type === "audio" ? "audio" : "tekst"}
@@ -293,7 +302,7 @@ function MeetingDetail({
         )}
       </div>
 
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-8 py-6">
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 sm:px-8 py-6">
         <h2 className="mb-3 font-medium text-zinc-100">Transkrypt</h2>
         {meeting.transcript_parts.length === 0 ? (
           <p className="text-zinc-500">Transkrypt jeszcze niedostępny.</p>

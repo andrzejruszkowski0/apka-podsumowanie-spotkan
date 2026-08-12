@@ -11,7 +11,7 @@ type SubmitState =
   | { kind: "submitting" }
   | { kind: "error"; message: string };
 
-const inputClass = "rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-zinc-100";
+const inputClass = "rounded-md border border-zinc-500 bg-zinc-950 px-3 py-2 text-zinc-100";
 
 function Upload({ onCreated }: { onCreated: (meetingId: string) => void }) {
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -90,7 +90,7 @@ function Upload({ onCreated }: { onCreated: (meetingId: string) => void }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-4 rounded-xl border border-zinc-800 bg-zinc-900 px-8 py-6"
+      className="flex flex-col gap-4 rounded-xl border border-zinc-800 bg-zinc-900 px-4 sm:px-8 py-6"
     >
       <h1 className="text-2xl font-semibold tracking-tight text-white">Nowe spotkanie</h1>
 
@@ -105,7 +105,9 @@ function Upload({ onCreated }: { onCreated: (meetingId: string) => void }) {
         />
       </label>
 
-      <div className="flex gap-4">
+      {/* flex-col na wąskim ekranie: dwa pola flex-1 obok siebie w karcie
+          px-4 zostawiały ~131px na pole — za mało dla natywnego date pickera. */}
+      <div className="flex flex-col gap-4 sm:flex-row">
         <label className="flex flex-1 flex-col gap-1.5">
           <span className="text-sm font-medium text-zinc-400">Data spotkania</span>
           <input

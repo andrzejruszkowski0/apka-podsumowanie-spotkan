@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-12T00:00:00.000Z",
+  "title": "Design System: Analiza spotkań",
+  "extensions": {
+    "colorMeta": {
+      "void": {
+        "role": "neutral",
+        "displayName": "Pustka",
+        "canonical": "#000000",
+        "tonalRamp": ["#000000", "oklch(14.1% 0.005 285.823)", "oklch(21% 0.006 285.885)", "oklch(27.4% 0.006 286.033)", "oklch(37% 0.013 285.805)", "oklch(44.2% 0.017 285.786)", "oklch(55.2% 0.016 285.938)", "oklch(70.5% 0.015 286.067)"]
+      },
+      "well": {
+        "role": "neutral",
+        "displayName": "Wgłębienie",
+        "canonical": "oklch(14.1% 0.005 285.823)",
+        "tonalRamp": ["oklch(14.1% 0.005 285.823)", "oklch(21% 0.006 285.885)", "oklch(27.4% 0.006 286.033)", "oklch(37% 0.013 285.805)", "oklch(44.2% 0.017 285.786)", "oklch(55.2% 0.016 285.938)", "oklch(70.5% 0.015 286.067)", "oklch(87.1% 0.006 286.286)"]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Płyta",
+        "canonical": "oklch(21% 0.006 285.885)",
+        "tonalRamp": ["oklch(14.1% 0.005 285.823)", "oklch(21% 0.006 285.885)", "oklch(27.4% 0.006 286.033)", "oklch(37% 0.013 285.805)", "oklch(44.2% 0.017 285.786)", "oklch(55.2% 0.016 285.938)", "oklch(70.5% 0.015 286.067)", "oklch(96.7% 0.001 286.375)"]
+      },
+      "surface-raised": {
+        "role": "neutral",
+        "displayName": "Płyta uniesiona / kreska działowa",
+        "canonical": "oklch(27.4% 0.006 286.033)",
+        "tonalRamp": ["oklch(14.1% 0.005 285.823)", "oklch(21% 0.006 285.885)", "oklch(27.4% 0.006 286.033)", "oklch(37% 0.013 285.805)", "oklch(44.2% 0.017 285.786)", "oklch(55.2% 0.016 285.938)", "oklch(70.5% 0.015 286.067)", "oklch(87.1% 0.006 286.286)"]
+      },
+      "stroke": {
+        "role": "neutral",
+        "displayName": "Obrys kontrolki",
+        "canonical": "oklch(55.2% 0.016 285.938)",
+        "tonalRamp": ["oklch(14.1% 0.005 285.823)", "oklch(21% 0.006 285.885)", "oklch(27.4% 0.006 286.033)", "oklch(37% 0.013 285.805)", "oklch(44.2% 0.017 285.786)", "oklch(55.2% 0.016 285.938)", "oklch(70.5% 0.015 286.067)", "oklch(87.1% 0.006 286.286)"]
+      },
+      "signal": {
+        "role": "primary",
+        "displayName": "Sygnał operacyjny",
+        "canonical": "oklch(54.6% 0.245 262.881)",
+        "tonalRamp": ["oklch(28.2% 0.091 267.935)", "oklch(37.9% 0.146 265.522)", "oklch(42.4% 0.199 265.638)", "oklch(48.8% 0.243 264.376)", "oklch(54.6% 0.245 262.881)", "oklch(62.3% 0.214 259.815)", "oklch(70.7% 0.165 254.624)", "oklch(93.2% 0.032 255.585)"]
+      },
+      "state-ok": {
+        "role": "tertiary",
+        "displayName": "Stan: domknięte",
+        "canonical": "oklch(76.5% 0.177 163.223)",
+        "tonalRamp": ["oklch(26.2% 0.051 172.552)", "oklch(37.8% 0.077 168.94)", "oklch(43.2% 0.095 166.913)", "oklch(50.8% 0.118 165.612)", "oklch(59.6% 0.145 163.225)", "oklch(69.6% 0.17 162.48)", "oklch(76.5% 0.177 163.223)", "oklch(95% 0.052 163.051)"]
+      },
+      "state-attention": {
+        "role": "tertiary",
+        "displayName": "Stan: niepewne",
+        "canonical": "oklch(82.8% 0.189 84.429)",
+        "tonalRamp": ["oklch(27.9% 0.077 45.635)", "oklch(41.4% 0.112 45.904)", "oklch(47.3% 0.137 46.201)", "oklch(55.5% 0.163 48.998)", "oklch(66.6% 0.179 58.318)", "oklch(76.9% 0.188 70.08)", "oklch(82.8% 0.189 84.429)", "oklch(96.2% 0.059 95.617)"]
+      },
+      "state-blocked": {
+        "role": "tertiary",
+        "displayName": "Stan: zablokowane",
+        "canonical": "oklch(70.4% 0.191 22.216)",
+        "tonalRamp": ["oklch(25.8% 0.092 26.042)", "oklch(39.6% 0.141 25.723)", "oklch(44.4% 0.177 26.899)", "oklch(50.5% 0.213 27.518)", "oklch(57.7% 0.245 27.325)", "oklch(63.7% 0.237 25.331)", "oklch(70.4% 0.191 22.216)", "oklch(93.6% 0.032 17.717)"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Nagłówek strony. Dokładnie jeden na ekran, zawsze w pełnej bieli." },
+      "title": { "displayName": "Title", "purpose": "Nagłówek karty i tytuły bloków. Używany oszczędnie." },
+      "body": { "displayName": "Body", "purpose": "Koń roboczy — treść, wartości pól, przyciski. Ok. 70% tekstu w aplikacji." },
+      "label": { "displayName": "Label", "purpose": "Etykiety pól, badge'e, metadane, cytaty źródłowe, stany puste." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "tactile-press", "value": "transform 150ms cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Jedyna animacja systemu: scale(0.98) na wciśnięciu przycisku. Potwierdzenie dotyku, nie dekoracja." },
+      { "name": "tint-shift", "value": "color 150ms cubic-bezier(0.4, 0, 0.2, 1), background-color 150ms cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Rozjaśnienie tuszu i tła na hover w nawigacji i przyciskach wtórnych." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "40rem" },
+      { "name": "md", "value": "48rem" },
+      { "name": "lg", "value": "64rem" },
+      { "name": "xl", "value": "80rem" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Akcja główna ekranu. Jedyne pełne wypełnienie akcentem w systemie.",
+      "html": "<button class=\"ds-btn-primary\">Zatwierdź</button>",
+      "css": ".ds-btn-primary { background: oklch(54.6% 0.245 262.881); color: #fff; font: 500 0.875rem/1.428 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 0.5rem 1rem; border: none; border-radius: 0.375rem; cursor: pointer; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1), transform 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-primary:hover { background: oklch(62.3% 0.214 259.815); } .ds-btn-primary:active { transform: scale(0.98); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 2px oklch(62.3% 0.214 259.815); } .ds-btn-primary:disabled { opacity: 0.5; } .ds-btn-primary:disabled:active { transform: none; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Akcja poboczna. Ta sama geometria co primary, inna waga wizualna.",
+      "html": "<button class=\"ds-btn-secondary\">Anuluj</button>",
+      "css": ".ds-btn-secondary { background: transparent; color: oklch(87.1% 0.006 286.286); font: 500 0.875rem/1.428 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 0.5rem 1rem; border: 1px solid oklch(55.2% 0.016 285.938); border-radius: 0.375rem; cursor: pointer; transition: background-color 150ms cubic-bezier(0.4,0,0.2,1), transform 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-secondary:hover { background: oklch(27.4% 0.006 286.033); } .ds-btn-secondary:active { transform: scale(0.98); } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 2px oklch(62.3% 0.214 259.815); }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Pole wpuszczone w płytę. Etykieta zawsze nad polem, fokus zawsze pierścieniem 2px.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Tytuł spotkania</span><input class=\"ds-input\" type=\"text\" value=\"Kwartalne z dostawcą\" /></label>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 0.375rem; font: 400 0.875rem/1.428 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; } .ds-field-label { color: oklch(70.5% 0.015 286.067); } .ds-input { background: oklch(14.1% 0.005 285.823); color: oklch(96.7% 0.001 286.375); font: inherit; padding: 0.5rem 0.75rem; border: 1px solid oklch(55.2% 0.016 285.938); border-radius: 0.375rem; } .ds-input:focus { outline: none; border-color: oklch(62.3% 0.214 259.815); box-shadow: 0 0 0 2px oklch(62.3% 0.214 259.815); }"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Płyta nałożona na czerń. Bez cienia — głębia wyłącznie tonalna.",
+      "html": "<div class=\"ds-card\"><h2 class=\"ds-card-title\">Ostatnie spotkania</h2><p class=\"ds-card-meta\">Trzy pozycje czekają na weryfikację.</p></div>",
+      "css": ".ds-card { background: oklch(21% 0.006 285.885); border: 1px solid oklch(27.4% 0.006 286.033); border-radius: 0.75rem; padding: 1.5rem 2rem; font: 400 0.875rem/1.428 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; } .ds-card-title { margin: 0 0 0.25rem; font-size: 1.5rem; font-weight: 600; letter-spacing: -0.025em; color: #fff; } .ds-card-meta { margin: 0; color: oklch(55.2% 0.016 285.938); }"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "badge-warning",
+      "description": "Pigułka statusu. Cztery tony mapowane ze stanu domenowego, nie dobierane ręcznie.",
+      "html": "<div class=\"ds-badges\"><span class=\"ds-badge ds-badge-neutral\">anulowane</span><span class=\"ds-badge ds-badge-positive\">zrobione</span><span class=\"ds-badge ds-badge-warning\">do weryfikacji</span><span class=\"ds-badge ds-badge-negative\">błąd</span></div>",
+      "css": ".ds-badges { display: flex; flex-wrap: wrap; gap: 0.5rem; } .ds-badge { display: inline-flex; align-items: center; padding: 0.125rem 0.5rem; border-radius: 9999px; font: 500 0.75rem/1.333 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; } .ds-badge-neutral { background: oklch(27.4% 0.006 286.033); color: oklch(87.1% 0.006 286.286); } .ds-badge-positive { background: color-mix(in oklch, oklch(69.6% 0.17 162.48) 15%, transparent); color: oklch(76.5% 0.177 163.223); } .ds-badge-warning { background: color-mix(in oklch, oklch(76.9% 0.188 70.08) 15%, transparent); color: oklch(82.8% 0.189 84.429); } .ds-badge-negative { background: color-mix(in oklch, oklch(63.7% 0.237 25.331) 15%, transparent); color: oklch(70.4% 0.191 22.216); }"
+    },
+    {
+      "name": "Navigation Bar",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Pasek przyklejony do góry na tle czerni z rozmyciem. Aktywna zakładka na płycie uniesionej.",
+      "html": "<nav class=\"ds-nav\"><span class=\"ds-nav-brand\">Analiza spotkań</span><a class=\"ds-nav-link ds-nav-link-active\" href=\"#\">Dashboard</a><a class=\"ds-nav-link\" href=\"#\">Zadania</a><a class=\"ds-nav-link\" href=\"#\">Decyzje</a></nav>",
+      "css": ".ds-nav { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 2rem; background: rgba(0,0,0,0.95); backdrop-filter: blur(8px); border-bottom: 1px solid oklch(27.4% 0.006 286.033); font: 500 0.875rem/1.428 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; } .ds-nav-brand { margin-right: 1rem; font-weight: 600; letter-spacing: -0.025em; color: #fff; } .ds-nav-link { padding: 0.375rem 0.75rem; border-radius: 0.375rem; color: oklch(70.5% 0.015 286.067); text-decoration: none; transition: color 150ms cubic-bezier(0.4,0,0.2,1); } .ds-nav-link:hover { color: oklch(96.7% 0.001 286.375); } .ds-nav-link-active { background: oklch(27.4% 0.006 286.033); color: #fff; }"
+    },
+    {
+      "name": "Karta triage",
+      "kind": "custom",
+      "refersTo": "card-compact",
+      "description": "Komponent sygnaturowy. Jedno pudełko, trzy poziomy pilności: zablokowane, niepewne, w porządku. Blokada zawsze wygrywa z niepewnością.",
+      "html": "<div class=\"ds-triage-stack\"><div class=\"ds-triage ds-triage-blocked\"><div class=\"ds-triage-head\"><span class=\"ds-triage-text\">Przygotować zestawienie kosztów transportu</span><span class=\"ds-chip ds-chip-blocked\">nierozwiązane nazwisko</span></div><p class=\"ds-quote\">„…to Anna niech to zbierze do piątku…\"</p></div><div class=\"ds-triage ds-triage-uncertain\"><div class=\"ds-triage-head\"><span class=\"ds-triage-text\">Zweryfikować warunki rabatu 3%</span><span class=\"ds-chip ds-chip-uncertain\">pewność: 62%</span></div><p class=\"ds-quote\">„…chyba ustaliliśmy trzy procent, ale to trzeba potwierdzić…\"</p></div><div class=\"ds-triage ds-triage-ok\"><div class=\"ds-triage-head\"><span class=\"ds-triage-text\">Wysłać protokół do dostawcy</span><span class=\"ds-chip ds-chip-ok\">pewność: 94%</span></div><p class=\"ds-quote\">„…protokół wyślemy najpóźniej w poniedziałek…\"</p></div></div>",
+      "css": ".ds-triage-stack { display: flex; flex-direction: column; gap: 0.75rem; font: 400 0.875rem/1.428 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; } .ds-triage { border: 1px solid; border-radius: 0.75rem; padding: 0.75rem 1rem; } .ds-triage-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.75rem; } .ds-triage-text { color: oklch(96.7% 0.001 286.375); } .ds-triage-blocked { border-color: color-mix(in oklch, oklch(63.7% 0.237 25.331) 40%, transparent); background: color-mix(in oklch, oklch(63.7% 0.237 25.331) 6%, transparent); } .ds-triage-uncertain { border-color: color-mix(in oklch, oklch(76.9% 0.188 70.08) 40%, transparent); background: color-mix(in oklch, oklch(76.9% 0.188 70.08) 6%, transparent); } .ds-triage-ok { border-color: oklch(27.4% 0.006 286.033); background: oklch(21% 0.006 285.885); } .ds-chip { flex-shrink: 0; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 500; white-space: nowrap; } .ds-chip-blocked { background: color-mix(in oklch, oklch(63.7% 0.237 25.331) 15%, transparent); color: oklch(80.8% 0.114 19.571); } .ds-chip-uncertain { background: color-mix(in oklch, oklch(76.9% 0.188 70.08) 15%, transparent); color: oklch(87.9% 0.169 91.605); } .ds-chip-ok { background: oklch(27.4% 0.006 286.033); color: oklch(70.5% 0.015 286.067); } .ds-quote { margin: 0.25rem 0 0; font-size: 0.75rem; font-style: italic; color: oklch(70.5% 0.015 286.067); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Sala kontrolna",
+    "overview": "To jest panel przyrządów, nie strona. Operator siedzi przed ciemną konsolą, na której wszystko, co świeci, coś znaczy. W spoczynku interfejs jest niemal achromatyczny — czerń i sześć stopni szarości. Kolor pojawia się wyłącznie wtedy, gdy system ma coś do zakomunikowania: że pozycja jest niepewna, że coś blokuje zatwierdzenie, że sprawa jest domknięta, że tutaj można działać. Ta dyscyplina jest jedynym powodem, dla którego gęsty ekran weryfikacji daje się przeskanować wzrokiem w kilka sekund.\n\nMateriał jest płaski i matowy. W całym projekcie nie ma ani jednego cienia — głębia powstaje wyłącznie przez ton: czerń tła, ciemniejsze wgłębienia pól formularza, jaśniejsze płyty kart. Powierzchnia nie udaje papieru ani szkła; udaje panel, na którym elementy są wpuszczone albo nałożone, nigdy uniesione. Ruch jest minimalny i wyłącznie potwierdzający — przyciski wciskają się o 2% przy kliknięciu i to cała animacja, jaką ten system ma.\n\nGęstość jest wysoka, ale nie ciasna. Typografia stoi na jednym rozmiarze roboczym (14px) z dwoma stopniami wyciszenia w kolorze zamiast w wielkości — hierarchię niesie kontrast szarości, nie skala. To pozwala trzymać dużo informacji na ekranie bez efektu tabeli enterprise'owej.",
+    "keyCharacteristics": [
+      "Achromatyczny w spoczynku; kolor jest wyłącznie odczytem stanu",
+      "Zero cieni — głębia wyłącznie tonalna (czerń → wgłębienie → płyta)",
+      "Jeden rozmiar roboczy tekstu, hierarchia przez kontrast szarości",
+      "Dwa promienie: 0.75rem na pojemnikach, 0.375rem na kontrolkach",
+      "Ruch tylko jako potwierdzenie dotyku, nigdy jako dekoracja",
+      "Font systemowy, bez ładowania własnego kroju"
+    ],
+    "rules": [
+      { "name": "Zasada Odczytu", "body": "Każdy piksel, który nie jest w skali neutralnej, jest odczytem stanu. Niebieski = „tu jest akcja, to jest aktywne, tu jest fokus\". Bursztyn = „niepewne\". Czerwień = „zablokowane\". Zieleń = „domknięte\". Nie istnieje kolor, który nic nie znaczy — jeśli nie umiesz powiedzieć, jaki stan sygnalizuje, użyj skali zinc.", "section": "colors" },
+      { "name": "Zasada Odwrotnej Krycia", "body": "Im większa powierzchnia, tym słabszy barwnik. Podbarwiony badge stoi na /15, podbarwiona karta na /[0.06]. Duża plama koloru na 15% zamieniłaby panel w alert.", "section": "colors" },
+      { "name": "Zasada Ramki i Wypełnienia", "body": "Stan podbarwia powierzchnię i obrys razem (border-red-500/40 + bg-red-500/[0.06]). Samo tło jest za słabe, żeby przebić się przez gęstość ekranu weryfikacji; sam obrys ginie w kresce działowej.", "section": "colors" },
+      { "name": "Zasada Placeholdera", "body": "Tekst zastępczy w polu jest tekstem w rozumieniu WCAG 1.4.3, nie dekoracją — musi trzymać 4.5:1 tak jak każda inna treść. zinc-400 na tle pola daje 7.59:1; zinc-500 (4.12:1) i zinc-600 (2.58:1) nie przechodzą.", "section": "colors" },
+      { "name": "Zasada Dwóch Rozmiarów", "body": "Hierarchię wewnątrz karty budujesz kolorem tuszu, nie wielkością. W obrębie jednego komponentu dozwolone są najwyżej dwa rozmiary (body + label); trzeci oznacza, że komponent powinien zostać rozbity.", "section": "typography" },
+      { "name": "Zasada Cytatu", "body": "Cytat ze źródła jest zawsze kursywą, w rozmiarze label, w tuszu przygaszonym, w polskich cudzysłowach „…\". Nigdy nie konkuruje wizualnie z treścią, którą uzasadnia — jest przypisem, nie nagłówkiem.", "section": "typography" },
+      { "name": "Zasada Szerokości Zadania", "body": "Szerokość kontenera wynika z tego, czy użytkownik czyta jedną rzecz (42rem), czy porównuje wiele (56rem). Nie z tego, ile treści akurat jest.", "section": "layout" },
+      { "name": "Zasada Płaskiej Konsoli", "body": "Powierzchnie są płaskie zawsze. Jeśli element wymaga wyróżnienia, dostaje inny ton albo obrys — nigdy cień, nigdy gradient, nigdy poświatę.", "section": "elevation" },
+      { "name": "Zasada Pojemnik/Kontrolka", "body": "Promień informuje o roli. Jeśli w to klikasz — 0.375rem. Jeśli to coś zawiera — 0.75rem. Element o promieniu pojemnika, który jest klikalny, jest błędem systemu.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do trzymać interfejs achromatyczny w spoczynku. Zanim użyjesz koloru, nazwij stan, który sygnalizuje.",
+      "Do budować głębię tonem: void → surface → well. Trzy kroki wystarczają na każdy ekran.",
+      "Do podbarwiać stan jednocześnie na obrysie (/40) i wypełnieniu (/[0.06]) — patrz Zasada Ramki i Wypełnienia.",
+      "Do stawiać cytat źródłowy przy każdej pozycji wygenerowanej przez AI, kursywą w rozmiarze label. To jest pozycjonowanie produktu wyrażone typografią.",
+      "Do dawać każdej kontrolce widoczny pierścień fokusa ring-2 w signal-bright. Nadpisujesz outline: none — masz obowiązek dać zamiennik.",
+      "Do trzymać dwa promienie: pojemnik 0.75rem, kontrolka 0.375rem.",
+      "Do potwierdzać dotyk przez scale(0.98) na wciśnięciu. To jedyna animacja, jakiej ten system potrzebuje."
+    ],
+    "donts": [
+      "Don't wprowadzać cieni, gradientów ani poświat. System jest płaski i ma pozostać płaski.",
+      "Don't używać koloru dekoracyjnie. Kolor bez znaczenia stanu łamie Zasadę Odczytu i psuje skanowalność ekranu weryfikacji.",
+      "Don't sięgać po słownik czatu z AI: dymki rozmowy, awatar asystenta, animacja „pisania\", iskierki, „✨\". AI jest tu silnikiem ekstrakcji działającym w tle, nie rozmówcą — i nigdy nie mówi pierwszej osobie.",
+      "Don't zsuwać się w enterprise'ową szarość: tabele bez oddechu, ramka wokół każdej komórki, tekst poniżej 12px. Gęsto nie znaczy ciasno — rytm 4px i cztery stopnie tuszu są po to, żeby dało się to czytać.",
+      "Don't dodawać trzeciego rozmiaru tekstu wewnątrz komponentu. Jeśli hierarchia nie mieści się w body + label, komponent jest za duży.",
+      "Don't oznaczać barwą stanu czegoś, czego użytkownik nie może rozwiązać. Czerwień zobowiązuje: skoro blokuje, musi obok stać kontrolka, która odblokowuje."
+    ]
+  }
+}

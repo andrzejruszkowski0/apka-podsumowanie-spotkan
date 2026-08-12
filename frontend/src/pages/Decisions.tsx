@@ -1,7 +1,8 @@
-import { MagnifyingGlass, X } from "@phosphor-icons/react";
+import { Gavel, MagnifyingGlass, X } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { apiFetch, errorDetail } from "../lib/api";
 import { Badge } from "../components/Badge";
+import { EmptyState, ErrorState, LoadingState } from "../components/States";
 import { btnPrimarySm, btnSecondarySm } from "../lib/styles";
 
 type Topic = { id: string; name: string; kind: string; notes: string | null };
@@ -20,7 +21,7 @@ type Decision = {
 
 type State = { kind: "loading" } | { kind: "ok" } | { kind: "error"; message: string };
 
-function Decisions() {
+function Decisions({ navigate }: { navigate: (to: string) => void }) {
   const [state, setState] = useState<State>({ kind: "loading" });
   const [decisions, setDecisions] = useState<Decision[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -72,6 +73,15 @@ function Decisions() {
     setActiveQuery("");
   }, []);
 
+  // Jak w Zadaniach: pusty rejestr i pusty wynik wyszukiwania to dwa różne
+  // stany i wymagają dwóch różnych podpowiedzi.
+  const filtersActive = topicFilter !== "" || activeQuery !== "";
+
+  const clearFilters = useCallback(() => {
+    setTopicFilter("");
+    clearSearch();
+  }, [clearSearch]);
+
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-semibold tracking-tight text-white">Rejestr decyzji</h1>
@@ -82,7 +92,7 @@ function Decisions() {
           <select
             value={topicFilter}
             onChange={(e) => setTopicFilter(e.target.value)}
-            className="rounded-md border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="rounded-md border border-zinc-500 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">wszystkie</option>
             {topics.map((t) => (
@@ -93,12 +103,16 @@ function Decisions() {
           </select>
         </label>
         <form onSubmit={runSearch} className="flex items-center gap-2">
+          {/* placeholder nie jest nazwą dostępną (znika po wpisaniu znaku,
+              część czytników go w ogóle nie odczytuje) — aria-label niesie
+              nazwę pola niezależnie od stanu. */}
           <input
             type="text"
             value={queryInput}
             onChange={(e) => setQueryInput(e.target.value)}
             placeholder="Szukaj semantycznie…"
-            className="rounded-md border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label="Szukaj w rejestrze decyzji"
+            className="rounded-md border border-zinc-500 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button type="submit" className={"flex items-center gap-1.5 " + btnPrimarySm}>
             <MagnifyingGlass size={14} weight="bold" />
@@ -121,10 +135,34 @@ function Decisions() {
         <p className="text-sm text-zinc-500">Wyniki wyszukiwania semantycznego dla „{activeQuery}”.</p>
       )}
 
-      {state.kind === "loading" && <p className="text-zinc-500">Wczytywanie…</p>}
-      {state.kind === "error" && <p className="text-red-400">Błąd: {state.message}</p>}
+      {state.kind === "loading" && <LoadingState />}
+      {state.kind === "error" && <ErrorState message={state.message} onRetry={load} />}
       {state.kind === "ok" && decisions.length === 0 && (
-        <p className="text-zinc-500">Brak decyzji spełniających kryteria.</p>
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3">
+          {filtersActive ? (
+            <EmptyState
+              icon={MagnifyingGlass}
+              title="Nic nie pasuje do tego zapytania"
+              description="Wyszukiwarka rozumie sens, nie tylko dopasowuje słowa — ale rejestr może po prostu nie zawierać jeszcze ustaleń na ten temat."
+              action={
+                <button onClick={clearFilters} className={btnSecondarySm}>
+                  Wyczyść wyszukiwanie
+                </button>
+              }
+            />
+          ) : (
+            <EmptyState
+              icon={Gavel}
+              title="Rejestr decyzji jest pusty"
+              description="Trafiają tu twarde ustalenia z rozmów — warunki, terminy, zakresy — a nie opinie i pomysły. Wyciągają się same z zatwierdzonych spotkań."
+              action={
+                <button onClick={() => navigate("/upload")} className={btnPrimarySm}>
+                  Dodaj spotkanie
+                </button>
+              }
+            />
+          )}
+        </div>
       )}
       {state.kind === "ok" && decisions.length > 0 && (
         <div className="flex flex-col gap-3">

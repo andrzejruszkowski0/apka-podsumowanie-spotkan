@@ -89,7 +89,7 @@ function Briefing() {
               setPreview({ kind: "idle" });
               setSend({ kind: "idle" });
             }}
-            className="rounded-md border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="rounded-md border border-zinc-500 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">— wybierz —</option>
             {topics.map((t) => (

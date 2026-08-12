@@ -1,6 +1,7 @@
 import { Check, Trash } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiFetch, errorDetail } from "../lib/api";
+import { ErrorState, LoadingState } from "../components/States";
 import { btnPrimary } from "../lib/styles";
 
 type Person = { id: string; full_name: string; email: string; aliases: string[]; org: string | null };
@@ -53,7 +54,7 @@ function computeDecisionUnresolved(d: ReviewDecision): boolean {
 }
 
 const inputClass =
-  "rounded-md border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500";
+  "rounded-md border border-zinc-500 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500";
 
 function ConfidenceBadge({ value }: { value: number | null }) {
   if (value === null) return null;
@@ -122,7 +123,7 @@ function PersonChecklist({
         {people.map((p) => (
           <label
             key={p.id}
-            className="flex items-center gap-1 rounded border border-zinc-700 px-2 py-1 text-xs text-zinc-300"
+            className="flex items-center gap-1 rounded border border-zinc-500 px-2 py-1 text-xs text-zinc-300"
           >
             <input
               type="checkbox"
@@ -170,7 +171,7 @@ function TaskCard({
         />
         <button
           onClick={onDelete}
-          className="flex shrink-0 items-center gap-1 rounded-md border border-zinc-700 px-2 py-1 text-xs text-zinc-300 transition-transform hover:bg-zinc-800 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex shrink-0 items-center gap-1 rounded-md border border-zinc-500 px-2 py-1 text-xs text-zinc-300 transition-transform hover:bg-zinc-800 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <Trash size={12} weight="bold" />
           Usuń
@@ -281,7 +282,7 @@ function DecisionCard({
         />
         <button
           onClick={onDelete}
-          className="flex shrink-0 items-center gap-1 rounded-md border border-zinc-700 px-2 py-1 text-xs text-zinc-300 transition-transform hover:bg-zinc-800 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex shrink-0 items-center gap-1 rounded-md border border-zinc-500 px-2 py-1 text-xs text-zinc-300 transition-transform hover:bg-zinc-800 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           <Trash size={12} weight="bold" />
           Usuń
@@ -346,6 +347,7 @@ function Review({ meetingId, navigate }: { meetingId: string; navigate: (to: str
   const [deletedDecisionIds, setDeletedDecisionIds] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [retryTick, setRetryTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -379,7 +381,7 @@ function Review({ meetingId, navigate }: { meetingId: string; navigate: (to: str
     return () => {
       cancelled = true;
     };
-  }, [meetingId]);
+  }, [meetingId, retryTick]);
 
   const anyUnresolved = useMemo(
     () => tasks.some(computeTaskUnresolved) || decisions.some(computeDecisionUnresolved),
@@ -439,8 +441,14 @@ function Review({ meetingId, navigate }: { meetingId: string; navigate: (to: str
     }
   }, [meetingId, tasks, decisions, deletedTaskIds, deletedDecisionIds, navigate]);
 
-  if (state.kind === "loading") return <p className="text-zinc-500">Wczytywanie…</p>;
-  if (state.kind === "error") return <p className="text-red-400">Błąd: {state.message}</p>;
+  if (state.kind === "loading") return <LoadingState />;
+  if (state.kind === "error") {
+    const retry = () => {
+      setState({ kind: "loading" });
+      setRetryTick((v) => v + 1);
+    };
+    return <ErrorState message={state.message} onRetry={retry} />;
+  }
   if (state.kind === "not_reviewable") {
     return (
       <p className="text-zinc-400">

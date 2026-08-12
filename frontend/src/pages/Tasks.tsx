@@ -1,7 +1,10 @@
+import { FunnelSimple, ListChecks } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { apiFetch, errorDetail } from "../lib/api";
 import { todayIso } from "../lib/dates";
+import { btnPrimarySm, btnSecondarySm } from "../lib/styles";
 import { TaskStatusBadge } from "../components/Badge";
+import { EmptyState, ErrorState, LoadingState } from "../components/States";
 
 type Topic = { id: string; name: string; kind: string; notes: string | null };
 
@@ -37,9 +40,9 @@ function raciSummary(raci: TaskRaci): string {
 }
 
 const selectClass =
-  "rounded-md border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500";
+  "rounded-md border border-zinc-500 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-blue-500";
 
-function Tasks() {
+function Tasks({ navigate }: { navigate: (to: string) => void }) {
   const [state, setState] = useState<State>({ kind: "loading" });
   const [tasks, setTasks] = useState<Task[]>([]);
   const [topics, setTopics] = useState<Topic[]>([]);
@@ -79,6 +82,18 @@ function Tasks() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // Pusty wynik ma dwie zupełnie różne przyczyny: nie ma jeszcze żadnych zadań
+  // albo filtry je odsiały. Domyślny filtr to „otwarte", więc bez tego
+  // rozróżnienia świeży użytkownik dostawał komunikat obwiniający filtry,
+  // których sam nie ustawił.
+  const filtersActive = statusFilter !== "" || topicFilter !== "" || overdueOnly;
+
+  const clearFilters = useCallback(() => {
+    setStatusFilter("");
+    setTopicFilter("");
+    setOverdueOnly(false);
+  }, []);
 
   const toggleDone = useCallback(async (t: Task) => {
     const nextStatus = t.status === "done" ? "open" : "done";
@@ -143,10 +158,34 @@ function Tasks() {
         </label>
       </div>
 
-      {state.kind === "loading" && <p className="text-zinc-500">Wczytywanie…</p>}
-      {state.kind === "error" && <p className="text-red-400">Błąd: {state.message}</p>}
+      {state.kind === "loading" && <LoadingState />}
+      {state.kind === "error" && <ErrorState message={state.message} onRetry={load} />}
       {state.kind === "ok" && tasks.length === 0 && (
-        <p className="text-zinc-500">Brak zadań spełniających filtry.</p>
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3">
+          {filtersActive ? (
+            <EmptyState
+              icon={FunnelSimple}
+              title="Żadne zadanie nie pasuje do filtrów"
+              description="Zawęziłeś widok — zadania mogą istnieć poza tym wyborem. Domyślnie pokazujemy tylko otwarte."
+              action={
+                <button onClick={clearFilters} className={btnSecondarySm}>
+                  Wyczyść filtry
+                </button>
+              }
+            />
+          ) : (
+            <EmptyState
+              icon={ListChecks}
+              title="Nie ma jeszcze żadnych zadań"
+              description="Zadania powstają automatycznie z zatwierdzonych spotkań — z terminem, rolą wykonawcy i osobą odpowiedzialną za efekt. Zacznij od wgrania rozmowy."
+              action={
+                <button onClick={() => navigate("/upload")} className={btnPrimarySm}>
+                  Dodaj spotkanie
+                </button>
+              }
+            />
+          )}
+        </div>
       )}
       {state.kind === "ok" && tasks.length > 0 && (
         <div className="overflow-x-auto rounded-xl border border-zinc-800 bg-zinc-900">
@@ -165,11 +204,14 @@ function Tasks() {
               {tasks.map((t) => (
                 <tr key={t.id} className="border-b border-zinc-800/60 last:border-0 hover:bg-zinc-800/30">
                   <td className="px-4 py-2.5">
+                    {/* Bez etykiety obok — jedyny sposób, żeby czytnik ekranu
+                        wiedział, KTÓREGO zadania dotyczy, to opis w aria-label. */}
                     <input
                       type="checkbox"
                       checked={t.status === "done"}
                       disabled={pendingIds.includes(t.id) || t.status === "cancelled"}
                       onChange={() => toggleDone(t)}
+                      aria-label={`Oznacz jako ${t.status === "done" ? "otwarte" : "zrobione"}: ${t.description}`}
                       className="focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </td>

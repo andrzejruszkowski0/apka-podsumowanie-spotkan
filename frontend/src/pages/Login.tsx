@@ -26,10 +26,16 @@ function Login() {
         onSubmit={onSubmit}
         className="w-full max-w-sm rounded-xl border border-zinc-800 bg-zinc-900 px-8 py-8"
       >
-        <h1 className="mb-1 text-xl font-semibold tracking-tight text-white">
+        <h1 className="mb-2 text-xl font-semibold tracking-tight text-white">
           Analiza spotkań
         </h1>
-        <p className="mb-6 text-sm text-zinc-500">Zaloguj się, aby kontynuować</p>
+        {/* Ekran logowania jest pierwszą rzeczą, jaką widzi osoba wchodząca
+            z linku do demo — bez jednego zdania o tym, czym to jest, formularz
+            jest ścianą. */}
+        <p className="mb-6 text-sm leading-relaxed text-zinc-400">
+          Zamienia nagranie spotkania w listę zadań z przypisaną
+          odpowiedzialnością, terminami i cytatem z rozmowy przy każdej pozycji.
+        </p>
         <div className="flex flex-col gap-4">
           <label className="flex flex-col gap-1.5 text-sm text-zinc-400">
             Email
@@ -39,7 +45,7 @@ function Login() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-zinc-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="rounded-md border border-zinc-500 bg-zinc-950 px-3 py-2 text-zinc-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm text-zinc-400">
@@ -50,7 +56,7 @@ function Login() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-zinc-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="rounded-md border border-zinc-500 bg-zinc-950 px-3 py-2 text-zinc-100 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </label>
           {error && <p className="text-sm text-red-400">{error}</p>}

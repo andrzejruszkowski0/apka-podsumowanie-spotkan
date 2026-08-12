@@ -6,7 +6,6 @@ html {
 
 body {
   background-color: #000000;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
 /* Natywne kontrolki (checkbox/radio/date picker) mają jasny domyślny wygląd —

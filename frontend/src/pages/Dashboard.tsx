@@ -1,7 +1,9 @@
+import { Waveform } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { API_URL, apiFetch } from "../lib/api";
-import { btnPrimary, btnSecondary } from "../lib/styles";
+import { btnPrimary, btnPrimarySm, btnSecondary } from "../lib/styles";
 import { Badge, MeetingStatusBadge } from "../components/Badge";
+import { EmptyState, ErrorState, LoadingState } from "../components/States";
 
 type HealthState =
   | { kind: "loading" }
@@ -40,7 +42,8 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
   const [auth, setAuth] = useState<AuthState>({ kind: "loading" });
   const [meetings, setMeetings] = useState<MeetingsState>({ kind: "loading" });
 
-  useEffect(() => {
+  const loadMeetings = useCallback(() => {
+    setMeetings({ kind: "loading" });
     apiFetch("/meetings")
       .then(async (res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -52,7 +55,8 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
       );
   }, []);
 
-  useEffect(() => {
+  const loadHealth = useCallback(() => {
+    setHealth({ kind: "loading" });
     apiFetch("/health")
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -81,8 +85,23 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
   }, []);
 
   useEffect(() => {
+    loadMeetings();
+  }, [loadMeetings]);
+
+  useEffect(() => {
+    loadHealth();
+  }, [loadHealth]);
+
+  useEffect(() => {
     loadMe();
   }, [loadMe]);
+
+  const retryAll = useCallback(() => {
+    setAuth({ kind: "loading" });
+    loadHealth();
+    loadMe();
+    loadMeetings();
+  }, [loadHealth, loadMe, loadMeetings]);
 
   const logout = useCallback(() => {
     apiFetch("/auth/logout", { method: "POST" }).finally(loadMe);
@@ -98,40 +117,46 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
         Analiza spotkań
       </h1>
 
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-8 py-6">
-        {health.kind === "loading" && (
-          <p className="text-zinc-500">Sprawdzanie backendu…</p>
-        )}
-        {health.kind === "ok" && (
-          <p className="font-medium text-emerald-400">{health.status}</p>
-        )}
-        {health.kind === "error" && (
-          <p className="text-red-400">Błąd: {health.message}</p>
-        )}
-      </div>
+      {/* Sprawny backend nie zasługuje na własną kartę — zdrowy stan to brak
+          komunikatu. Sonda /health odzywa się tylko wtedy, gdy nie odpowiada,
+          bo wtedy niesie informację, której użytkownik nie ma skąd wziąć. */}
+      {health.kind === "error" && (
+        <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 sm:px-8 py-6">
+          <ErrorState message={health.message} onRetry={retryAll} />
+        </div>
+      )}
 
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-8 py-6">
-        {auth.kind === "loading" && (
-          <p className="text-zinc-500">Sprawdzanie sesji…</p>
-        )}
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 sm:px-8 py-6">
+        {auth.kind === "loading" && <LoadingState label="Sprawdzanie sesji…" />}
         {auth.kind === "error" && (
-          <p className="text-red-400">Błąd: {auth.message}</p>
+          <ErrorState message={auth.message} onRetry={loadMe} />
         )}
         {auth.kind === "anonymous" && (
-          <div className="flex flex-col items-start gap-2">
-            <a href={`${API_URL}/auth/login`} className={"inline-block " + btnPrimary}>
-              Zaloguj się przez Google
-            </a>
-            <p className="max-w-sm text-xs text-zinc-500">
-              Logowanie Google jest w trybie testowym — dostęp mają tylko
-              zaproszeni testerzy. Chcesz tylko zobaczyć appkę?
-            </p>
-            <button
-              onClick={startDemo}
-              className="text-sm text-blue-400 underline hover:text-blue-300"
-            >
-              Wypróbuj demo bez logowania Google
-            </button>
+          <div className="flex flex-col items-start gap-4">
+            <div className="flex flex-col items-start gap-1.5">
+              <a
+                href={`${API_URL}/auth/login`}
+                className={"inline-block " + btnPrimary}
+              >
+                Zaloguj się przez Google
+              </a>
+              <p className="max-w-md text-xs leading-relaxed text-zinc-400">
+                Odblokowuje wysyłkę maili i eksport do arkuszy. Ekran zgody
+                Google jest w trybie testowym — zadziała tylko na koncie
+                dodanym jako tester.
+              </p>
+            </div>
+            {/* Dla oceniającej widowni to jest najczęstsza droga wejścia, więc
+                stoi tu jako pełnoprawny przycisk, nie odnośnik w akapicie. */}
+            <div className="flex flex-col items-start gap-1.5">
+              <button onClick={startDemo} className={btnSecondary}>
+                Wypróbuj demo bez logowania Google
+              </button>
+              <p className="max-w-md text-xs leading-relaxed text-zinc-400">
+                Wchodzisz od razu, na fikcyjnych danych. Wszystko oprócz
+                wysyłki maili działa normalnie.
+              </p>
+            </div>
           </div>
         )}
         {auth.kind === "authenticated" && (
@@ -160,29 +185,28 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
         )}
       </div>
 
-      <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-8 py-6">
+      <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 sm:px-8 py-6">
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500">
           Ostatnie spotkania
         </h2>
-        {meetings.kind === "loading" && <p className="text-zinc-500">Wczytywanie…</p>}
+        {meetings.kind === "loading" && <LoadingState />}
         {meetings.kind === "error" && (
-          <p className="text-red-400">Błąd: {meetings.message}</p>
+          <ErrorState message={meetings.message} onRetry={loadMeetings} />
         )}
         {meetings.kind === "ok" && meetings.meetings.length === 0 && (
-          <p className="text-zinc-500">
-            Brak spotkań —{" "}
-            <a
-              href="/upload"
-              onClick={(e) => {
-                e.preventDefault();
-                navigate("/upload");
-              }}
-              className="text-blue-400 hover:underline"
-            >
-              dodaj pierwsze
-            </a>
-            .
-          </p>
+          <EmptyState
+            icon={Waveform}
+            title="Nie ma tu jeszcze żadnego spotkania"
+            description="Wgraj nagranie albo wklej gotowy tekst rozmowy. Aplikacja sama wyciągnie z niego zadania, terminy i role — a przy każdej pozycji pokaże cytat, na podstawie którego ją znalazła."
+            action={
+              <button
+                onClick={() => navigate("/upload")}
+                className={btnPrimarySm}
+              >
+                Dodaj pierwsze spotkanie
+              </button>
+            }
+          />
         )}
         {meetings.kind === "ok" && meetings.meetings.length > 0 && (
           <ul className="flex flex-col divide-y divide-zinc-800">

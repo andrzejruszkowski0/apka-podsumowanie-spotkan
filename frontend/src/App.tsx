@@ -1,17 +1,24 @@
 import type { Session } from "@supabase/supabase-js";
-import { SignOut } from "@phosphor-icons/react";
-import { useCallback, useEffect, useState } from "react";
-import Briefing from "./pages/Briefing";
+import { List, SignOut, X } from "@phosphor-icons/react";
+import { lazy, Suspense, useCallback, useEffect, useState } from "react";
 import Dashboard from "./pages/Dashboard";
-import Decisions from "./pages/Decisions";
 import Login from "./pages/Login";
-import MeetingDetail from "./pages/MeetingDetail";
-import Review from "./pages/Review";
-import Settings from "./pages/Settings";
-import Tasks from "./pages/Tasks";
-import Upload from "./pages/Upload";
 import { apiFetch, resetCsrfToken } from "./lib/api";
 import { supabase } from "./lib/supabaseClient";
+
+// Login i Dashboard zostają eager: Login trzeba pokazać natychmiast, zanim
+// wiadomo, czy sesja istnieje, a Dashboard to domyślna trasa („/") — prawie
+// każdy tu ląduje. Lazy dla Dashboardu kupowałoby ~8kB kosztem dodatkowego
+// round-tripu sieciowego na PIERWSZYM ekranie, dokładnie tam, gdzie PRODUCT.md
+// każe traktować szybkość pierwszego wrażenia priorytetowo. Pozostałych sześć
+// ekranów wymaga jawnej nawigacji, więc ładuje się dopiero na żądanie.
+const Briefing = lazy(() => import("./pages/Briefing"));
+const Decisions = lazy(() => import("./pages/Decisions"));
+const MeetingDetail = lazy(() => import("./pages/MeetingDetail"));
+const Review = lazy(() => import("./pages/Review"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Tasks = lazy(() => import("./pages/Tasks"));
+const Upload = lazy(() => import("./pages/Upload"));
 
 function useSession(): Session | null | undefined {
   // undefined = jeszcze nie sprawdzono, null = brak sesji (pokaż login)
@@ -53,11 +60,15 @@ function NavLink({
   path,
   navigate,
   children,
+  dense = false,
 }: {
   to: string;
   path: string;
   navigate: (to: string) => void;
   children: React.ReactNode;
+  // Drawer mobilny potrzebuje większego celu dotykowego niż pigułka
+  // w poziomym pasku desktopowym — sama logika kolorów zostaje wspólna.
+  dense?: boolean;
 }) {
   const active = path === to;
   return (
@@ -68,9 +79,13 @@ function NavLink({
         navigate(to);
       }}
       className={
-        "rounded-md px-3 py-1.5 text-sm font-medium transition-colors " +
+        "rounded-md text-sm font-medium transition-colors " +
+        (dense ? "px-3 py-2.5 " : "px-3 py-1.5 ") +
+        // Sygnał operacyjny (niebieski) oznacza „to jest aktywne" —
+        // DESIGN.md, Zasada Odczytu. Sama szarość (bg-zinc-800) tego nie
+        // mówiła; teraz aktywna zakładka jest odczytem stanu, nie dekoracją.
         (active
-          ? "bg-zinc-800 text-white"
+          ? "bg-blue-500/15 text-blue-400"
           : "text-zinc-400 hover:text-zinc-100")
       }
     >
@@ -79,11 +94,29 @@ function NavLink({
   );
 }
 
+const NAV_ITEMS = [
+  { to: "/", label: "Dashboard" },
+  { to: "/upload", label: "Nowe spotkanie" },
+  { to: "/tasks", label: "Zadania" },
+  { to: "/decisions", label: "Decyzje" },
+  { to: "/briefing", label: "Briefing" },
+  { to: "/settings", label: "Ustawienia" },
+];
+
 function App() {
   const session = useSession();
   const [path, navigate] = useRoute();
+  const [menuOpen, setMenuOpen] = useState(false);
   const reviewMatch = path.match(/^\/meetings\/([^/]+)\/review$/);
   const meetingMatch = path.match(/^\/meetings\/([^/]+)$/);
+
+  // Sześć linków w jednym rzędzie potrzebuje 738px i nie zwija się —
+  // na telefonie (375px) pasek nawigacji wystawał 363px poza ekran.
+  // Poniżej md nawigacja chowa się za hamburgerem; zamykamy ją przy każdej
+  // zmianie trasy, żeby kolejny ekran nie startował z otwartym menu.
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [path]);
 
   // Dwie niezależne sesje: Supabase (bramka logowania frontu) i cookie
   // backendu (Google OAuth albo demo). Samo signOut() zostawiało tę drugą
@@ -108,10 +141,10 @@ function App() {
   if (path === "/settings") {
     page = <Settings />;
   } else if (path === "/tasks") {
-    page = <Tasks />;
+    page = <Tasks navigate={navigate} />;
     wide = true;
   } else if (path === "/decisions") {
-    page = <Decisions />;
+    page = <Decisions navigate={navigate} />;
     wide = true;
   } else if (path === "/briefing") {
     page = <Briefing />;
@@ -128,37 +161,77 @@ function App() {
 
   return (
     <div className="min-h-screen bg-black">
-      <nav className="sticky top-0 z-10 flex items-center gap-2 border-b border-zinc-800 bg-black/95 px-8 py-3 backdrop-blur">
-        <span className="mr-4 text-sm font-semibold tracking-tight text-white">
-          Analiza spotkań
-        </span>
-        <NavLink to="/" path={path} navigate={navigate}>
-          Dashboard
-        </NavLink>
-        <NavLink to="/upload" path={path} navigate={navigate}>
-          Nowe spotkanie
-        </NavLink>
-        <NavLink to="/tasks" path={path} navigate={navigate}>
-          Zadania
-        </NavLink>
-        <NavLink to="/decisions" path={path} navigate={navigate}>
-          Decyzje
-        </NavLink>
-        <NavLink to="/briefing" path={path} navigate={navigate}>
-          Briefing
-        </NavLink>
-        <NavLink to="/settings" path={path} navigate={navigate}>
-          Ustawienia
-        </NavLink>
-        <button
-          onClick={logout}
-          className="ml-auto flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-zinc-400 transition-transform hover:text-zinc-100 active:scale-[0.98]"
-        >
-          <SignOut size={16} weight="bold" />
-          Wyloguj
-        </button>
+      {/* Niewidoczna, dopóki nie dostanie fokusa klawiaturą — pozwala
+          pominąć siedem stopów tabulacji w nawigacji (sześć linków +
+          wylogowanie) i przejść od razu do treści strony. */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-3 focus:z-20 focus:rounded-md focus:bg-blue-600 focus:px-3 focus:py-1.5 focus:text-sm focus:font-medium focus:text-white"
+      >
+        Przejdź do treści
+      </a>
+      <nav className="sticky top-0 z-10 border-b border-zinc-800 bg-black/95 backdrop-blur">
+        <div className="flex items-center gap-2 px-4 py-3 sm:px-8">
+          <span className="mr-4 text-sm font-semibold tracking-tight text-white">
+            Analiza spotkań
+          </span>
+          <div className="hidden items-center gap-2 md:flex">
+            {NAV_ITEMS.map((item) => (
+              <NavLink key={item.to} to={item.to} path={path} navigate={navigate}>
+                {item.label}
+              </NavLink>
+            ))}
+          </div>
+          <button
+            onClick={logout}
+            className="ml-auto hidden items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-zinc-400 transition-transform hover:text-zinc-100 active:scale-[0.98] md:flex"
+          >
+            <SignOut size={16} weight="bold" />
+            Wyloguj
+          </button>
+          {/* 44px w obie strony — próg dotykowy z audytu (AAA, 2.5.5); jedyny
+              kontrolny element w aplikacji celowo większy od reszty przycisków. */}
+          <button
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label={menuOpen ? "Zamknij menu" : "Otwórz menu"}
+            aria-expanded={menuOpen}
+            className="ml-auto flex h-11 w-11 items-center justify-center rounded-md text-zinc-400 transition-transform active:scale-[0.98] md:hidden"
+          >
+            {menuOpen ? <X size={20} weight="bold" /> : <List size={20} weight="bold" />}
+          </button>
+        </div>
+        {menuOpen && (
+          <div className="flex flex-col gap-1 border-t border-zinc-800 px-4 py-3 md:hidden">
+            {NAV_ITEMS.map((item) => (
+              <NavLink key={item.to} to={item.to} path={path} navigate={navigate} dense>
+                {item.label}
+              </NavLink>
+            ))}
+            <button
+              onClick={logout}
+              className="mt-1 flex items-center gap-1.5 rounded-md px-3 py-2.5 text-left text-sm font-medium text-zinc-400 transition-transform hover:text-zinc-100 active:scale-[0.98]"
+            >
+              <SignOut size={16} weight="bold" />
+              Wyloguj
+            </button>
+          </div>
+        )}
       </nav>
-      <div className={(wide ? "max-w-4xl" : "max-w-2xl") + " mx-auto px-4 py-10"}>{page}</div>
+      <main
+        id="main-content"
+        tabIndex={-1}
+        className={(wide ? "max-w-4xl" : "max-w-2xl") + " mx-auto px-4 py-6 outline-none sm:py-10"}
+      >
+        {/* Trasy poza Dashboardem ładują się dopiero na żądanie (patrz
+            lazy() powyżej) — ten fallback trzyma miejsce na czas pobrania
+            chunka. Bez ruchu, zgodnie z DESIGN.md: licznik czasu niesie
+            informację, obracające się kółko nie — a to trwa zwykle
+            pojedyncze dziesiątki milisekund, więc nawet licznik byłby
+            przesadą. */}
+        <Suspense fallback={<p className="text-sm text-zinc-400">Wczytywanie…</p>}>
+          {page}
+        </Suspense>
+      </main>
     </div>
   );
 }
