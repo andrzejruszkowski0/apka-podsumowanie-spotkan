@@ -1,6 +1,6 @@
 import { Check, Trash } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { apiFetch } from "../lib/api";
+import { apiFetch, errorDetail } from "../lib/api";
 import { btnPrimary } from "../lib/styles";
 
 type Person = { id: string; full_name: string; email: string; aliases: string[]; org: string | null };
@@ -39,11 +39,6 @@ type State =
   | { kind: "not_reviewable"; status: string }
   | { kind: "ok" }
   | { kind: "error"; message: string };
-
-async function errorDetail(res: Response): Promise<string> {
-  const body = await res.json().catch(() => null);
-  return body?.detail ?? `HTTP ${res.status}`;
-}
 
 function computeTaskUnresolved(t: ReviewTask): boolean {
   if (t.raci.R.raw && !t.raci.R.person_id) return true;

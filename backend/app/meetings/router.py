@@ -331,7 +331,11 @@ def approve_meeting(
         )
         for task_id in pending_ids:
             append_task_row(db, access_token, task_id)
-        db.commit()
+            # Commit po KAŻDYM wierszu, nie po całej pętli: wiersz jest już
+            # trwale w arkuszu Google, więc sheets_row musi przetrwać błąd
+            # kolejnej iteracji. Wspólny commit + rollback w except cofałby
+            # sheets_row wierszom faktycznie dopisanym i retry dublował je.
+            db.commit()
     except (TasksSheetsNotConfigured, ServiceAccountNotConfigured, SheetsApiError) as exc:
         db.rollback()
         raise HTTPException(

@@ -10,6 +10,7 @@ import Review from "./pages/Review";
 import Settings from "./pages/Settings";
 import Tasks from "./pages/Tasks";
 import Upload from "./pages/Upload";
+import { apiFetch } from "./lib/api";
 import { supabase } from "./lib/supabaseClient";
 
 function useSession(): Session | null | undefined {
@@ -84,6 +85,16 @@ function App() {
   const reviewMatch = path.match(/^\/meetings\/([^/]+)\/review$/);
   const meetingMatch = path.match(/^\/meetings\/([^/]+)$/);
 
+  // Dwie niezależne sesje: Supabase (bramka logowania frontu) i cookie
+  // backendu (Google OAuth albo demo). Samo signOut() zostawiało tę drugą
+  // aktywną, więc po ponownym zalogowaniu backend widział starą tożsamość.
+  const logout = useCallback(async () => {
+    await apiFetch("/auth/logout", { method: "POST" }).catch(() => {
+      // Sesja backendu mogła już wygasnąć — wylogowanie z Supabase i tak ma się udać.
+    });
+    await supabase.auth.signOut();
+  }, []);
+
   if (session === undefined) {
     return <div className="min-h-screen bg-black" />;
   }
@@ -139,7 +150,7 @@ function App() {
           Ustawienia
         </NavLink>
         <button
-          onClick={() => supabase.auth.signOut()}
+          onClick={logout}
           className="ml-auto flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-zinc-400 transition-transform hover:text-zinc-100 active:scale-[0.98]"
         >
           <SignOut size={16} weight="bold" />

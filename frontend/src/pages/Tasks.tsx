@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import { apiFetch } from "../lib/api";
+import { apiFetch, errorDetail } from "../lib/api";
+import { todayIso } from "../lib/dates";
 import { TaskStatusBadge } from "../components/Badge";
 
 type Topic = { id: string; name: string; kind: string; notes: string | null };
@@ -23,14 +24,9 @@ type Task = {
 
 type State = { kind: "loading" } | { kind: "ok" } | { kind: "error"; message: string };
 
-async function errorDetail(res: Response): Promise<string> {
-  const body = await res.json().catch(() => null);
-  return body?.detail ?? `HTTP ${res.status}`;
-}
-
 function isOverdue(t: Task): boolean {
   if (t.status !== "open" || !t.deadline) return false;
-  return t.deadline < new Date().toISOString().slice(0, 10);
+  return t.deadline < todayIso();
 }
 
 function raciSummary(raci: TaskRaci): string {

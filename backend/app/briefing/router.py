@@ -41,7 +41,7 @@ def preview_briefing(
     body: BriefingPreviewIn, user: CurrentUser = Depends(require_user), db: Session = Depends(get_db)
 ) -> dict:
     try:
-        return generate_preview(db, body.topic_id)
+        return generate_preview(db, body.topic_id, user.id)
     except TopicNotFound as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
     except (GeminiNotConfigured, BriefingError) as exc:

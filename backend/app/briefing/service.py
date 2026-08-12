@@ -31,9 +31,11 @@ _RECENT_DECISIONS_LIMIT = 10
 # Join wspólny dla otwartych i zamkniętych zadań: dokładnie jedna osoba z rolą
 # R na zadanie (indeks częściowy task_single_r, SPEC.md §2) — outerjoin, żeby
 # zadanie bez ustalonego R nie znikało z briefingu, tylko pokazywało "brak".
-_TASK_WITH_R = task.outerjoin(
-    task_raci, (task_raci.c.task_id == task.c.id) & (task_raci.c.role == "R")
-).outerjoin(person, task_raci.c.person_id == person.c.id)
+_TASK_WITH_R = (
+    task.join(meeting, task.c.meeting_id == meeting.c.id)
+    .outerjoin(task_raci, (task_raci.c.task_id == task.c.id) & (task_raci.c.role == "R"))
+    .outerjoin(person, task_raci.c.person_id == person.c.id)
+)
 
 
 class TopicNotFound(RuntimeError):
@@ -47,21 +49,26 @@ def _get_topic(db: Session, topic_id: uuid.UUID):
     return row
 
 
-def _last_meeting_cutoff(db: Session, topic_id: uuid.UUID) -> datetime | None:
+def _last_meeting_cutoff(db: Session, topic_id: uuid.UUID, user_id: uuid.UUID) -> datetime | None:
     """Kiedy odbyło się ostatnie (zatwierdzone) spotkanie dla tego tematu —
     podstawa do wyliczenia zadań "zamkniętych od ostatniego spotkania"."""
     return db.execute(
         select(meeting.c.created_at)
-        .where(meeting.c.topic_id == topic_id, meeting.c.status == "approved")
+        .where(
+            meeting.c.topic_id == topic_id,
+            meeting.c.user_id == user_id,
+            meeting.c.status == "approved",
+        )
         .order_by(meeting.c.created_at.desc())
         .limit(1)
     ).scalar_one_or_none()
 
 
-def _recent_decisions(db: Session, topic_id: uuid.UUID) -> list[tuple[str, date]]:
+def _recent_decisions(db: Session, topic_id: uuid.UUID, user_id: uuid.UUID) -> list[tuple[str, date]]:
     rows = db.execute(
         select(decision.c.statement, decision.c.decided_on)
-        .where(decision.c.topic_id == topic_id)
+        .select_from(decision.join(meeting, decision.c.meeting_id == meeting.c.id))
+        .where(decision.c.topic_id == topic_id, meeting.c.user_id == user_id)
         .order_by(decision.c.decided_on.desc(), decision.c.created_at.desc())
         .limit(_RECENT_DECISIONS_LIMIT)
     ).all()
@@ -70,11 +77,11 @@ def _recent_decisions(db: Session, topic_id: uuid.UUID) -> list[tuple[str, date]
     return list(reversed([(r.statement, r.decided_on) for r in rows]))
 
 
-def _open_tasks(db: Session, topic_id: uuid.UUID, today: date) -> list[TaskContext]:
+def _open_tasks(db: Session, topic_id: uuid.UUID, user_id: uuid.UUID, today: date) -> list[TaskContext]:
     rows = db.execute(
         select(task.c.description, task.c.deadline, person.c.full_name.label("r_name"))
         .select_from(_TASK_WITH_R)
-        .where(task.c.topic_id == topic_id, task.c.status == "open")
+        .where(task.c.topic_id == topic_id, meeting.c.user_id == user_id, task.c.status == "open")
         .order_by(task.c.deadline.asc().nulls_last())
     ).all()
     return [
@@ -88,26 +95,38 @@ def _open_tasks(db: Session, topic_id: uuid.UUID, today: date) -> list[TaskConte
     ]
 
 
-def _closed_tasks_since(db: Session, topic_id: uuid.UUID, cutoff: datetime | None) -> list[TaskContext]:
+def _closed_tasks_since(
+    db: Session, topic_id: uuid.UUID, user_id: uuid.UUID, cutoff: datetime | None
+) -> list[TaskContext]:
     if cutoff is None:
         return []
     rows = db.execute(
         select(task.c.description, person.c.full_name.label("r_name"))
         .select_from(_TASK_WITH_R)
-        .where(task.c.topic_id == topic_id, task.c.status == "done", task.c.done_at > cutoff)
+        .where(
+            task.c.topic_id == topic_id,
+            meeting.c.user_id == user_id,
+            task.c.status == "done",
+            task.c.done_at > cutoff,
+        )
         .order_by(task.c.done_at.asc())
     ).all()
     return [TaskContext(description=r.description, deadline=None, r_name=r.r_name, overdue=False) for r in rows]
 
 
-def generate_preview(db: Session, topic_id: uuid.UUID) -> dict:
+def generate_preview(db: Session, topic_id: uuid.UUID, user_id: uuid.UUID) -> dict:
+    # Temat jest globalny (SPEC.md §2), ale spotkania/zadania/decyzje już nie —
+    # briefing musi widzieć wyłącznie dane właściciela sesji, tak samo jak
+    # /tasks i /decisions filtrują po meeting.user_id.
     topic_row = _get_topic(db, topic_id)
     today = date.today()
     prompt = build_briefing_prompt(
         topic_name=topic_row["name"],
-        decisions=_recent_decisions(db, topic_id),
-        open_tasks=_open_tasks(db, topic_id, today),
-        closed_tasks=_closed_tasks_since(db, topic_id, _last_meeting_cutoff(db, topic_id)),
+        decisions=_recent_decisions(db, topic_id, user_id),
+        open_tasks=_open_tasks(db, topic_id, user_id, today),
+        closed_tasks=_closed_tasks_since(
+            db, topic_id, user_id, _last_meeting_cutoff(db, topic_id, user_id)
+        ),
     )
     body = generate_briefing(prompt)
     return {

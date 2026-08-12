@@ -1,6 +1,6 @@
 import { ArrowsClockwise } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
-import { apiFetch } from "../lib/api";
+import { apiFetch, errorDetail } from "../lib/api";
 import { btnPrimary } from "../lib/styles";
 
 type Person = {
@@ -21,11 +21,6 @@ type SyncState =
   | { kind: "loading" }
   | { kind: "done"; upserted: number; deactivated: number }
   | { kind: "error"; message: string };
-
-async function errorDetail(res: Response): Promise<string> {
-  const body = await res.json().catch(() => null);
-  return body?.detail ?? `HTTP ${res.status}`;
-}
 
 function Settings() {
   const [people, setPeople] = useState<PeopleState>({ kind: "loading" });

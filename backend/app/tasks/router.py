@@ -50,20 +50,35 @@ class TaskPatchIn(BaseModel):
     deadline: date | None = None
 
 
-def _load_raci_names(db: Session, task_id: uuid.UUID) -> dict[str, list[str]]:
+def _empty_names() -> dict[str, list[str]]:
+    return {"R": [], "A": [], "C": [], "I": []}
+
+
+def _load_raci_names_bulk(
+    db: Session, task_ids: list[uuid.UUID]
+) -> dict[uuid.UUID, dict[str, list[str]]]:
+    """Role RACI dla wielu zadań jednym zapytaniem — lista zadań ładowana per
+    wiersz dawała N+1 (jedno zapytanie na każde zadanie na ekranie)."""
+    if not task_ids:
+        return {}
     rows = db.execute(
-        select(task_raci.c.role, person.c.full_name)
+        select(task_raci.c.task_id, task_raci.c.role, person.c.full_name)
         .select_from(task_raci.join(person, task_raci.c.person_id == person.c.id))
-        .where(task_raci.c.task_id == task_id)
+        .where(task_raci.c.task_id.in_(task_ids))
     ).all()
-    names: dict[str, list[str]] = {"R": [], "A": [], "C": [], "I": []}
+    by_task: dict[uuid.UUID, dict[str, list[str]]] = {}
     for row in rows:
-        names[row.role].append(row.full_name)
-    return names
+        by_task.setdefault(row.task_id, _empty_names())[row.role].append(row.full_name)
+    return by_task
 
 
-def _serialize_task(db: Session, row: dict) -> dict:
-    names = _load_raci_names(db, row["id"])
+def _load_raci_names(db: Session, task_id: uuid.UUID) -> dict[str, list[str]]:
+    return _load_raci_names_bulk(db, [task_id]).get(task_id, _empty_names())
+
+
+def _serialize_task(db: Session, row: dict, names: dict[str, list[str]] | None = None) -> dict:
+    if names is None:
+        names = _load_raci_names(db, row["id"])
     return {
         "id": str(row["id"]),
         "meeting_id": str(row["meeting_id"]),
@@ -110,7 +125,11 @@ def list_tasks(
     if overdue:
         query = query.where(task.c.status == "open", task.c.deadline < date.today())
     rows = db.execute(query.order_by(task.c.created_at)).mappings().all()
-    return [_serialize_task(db, dict(row)) for row in rows]
+    names_by_task = _load_raci_names_bulk(db, [row["id"] for row in rows])
+    return [
+        _serialize_task(db, dict(row), names_by_task.get(row["id"], _empty_names()))
+        for row in rows
+    ]
 
 
 @router.patch("/tasks/{task_id}")

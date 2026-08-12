@@ -1,6 +1,7 @@
 import { UploadSimple } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
-import { apiFetch } from "../lib/api";
+import { apiFetch, errorDetail } from "../lib/api";
+import { todayIso } from "../lib/dates";
 import { btnPrimary } from "../lib/styles";
 
 type Topic = { id: string; name: string; kind: string; notes: string | null };
@@ -9,15 +10,6 @@ type SubmitState =
   | { kind: "idle" }
   | { kind: "submitting" }
   | { kind: "error"; message: string };
-
-async function errorDetail(res: Response): Promise<string> {
-  const body = await res.json().catch(() => null);
-  return body?.detail ?? `HTTP ${res.status}`;
-}
-
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 const inputClass = "rounded-md border border-zinc-700 bg-zinc-950 px-3 py-2 text-zinc-100";
 

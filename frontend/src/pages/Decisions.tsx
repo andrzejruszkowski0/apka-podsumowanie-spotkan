@@ -1,6 +1,6 @@
 import { MagnifyingGlass, X } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
-import { apiFetch } from "../lib/api";
+import { apiFetch, errorDetail } from "../lib/api";
 import { Badge } from "../components/Badge";
 import { btnPrimarySm, btnSecondarySm } from "../lib/styles";
 
@@ -19,11 +19,6 @@ type Decision = {
 };
 
 type State = { kind: "loading" } | { kind: "ok" } | { kind: "error"; message: string };
-
-async function errorDetail(res: Response): Promise<string> {
-  const body = await res.json().catch(() => null);
-  return body?.detail ?? `HTTP ${res.status}`;
-}
 
 function Decisions() {
   const [state, setState] = useState<State>({ kind: "loading" });
