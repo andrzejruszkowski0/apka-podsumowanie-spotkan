@@ -205,10 +205,16 @@ akcentu złamałoby zasadę odczytu.
   wyniósł 1.70–1.91:1 na każdym tle, na którym obrys faktycznie występuje
   (pole, karta, strona) — poniżej progu nawet dla samej grafiki. `zinc-500`
   jest najciemniejszym odcieniem, który przechodzi 3:1 na wszystkich trzech.
-- **Tusz** — cztery stopnie wyciszenia, w kolejności ważności:
+- **Tusz** — trzy stopnie wyciszenia dla tekstu, w kolejności ważności:
   `{colors.ink-max}` (nagłówki i aktywna nawigacja), `{colors.ink}` (treść
   wpisana przez użytkownika i wyniki), `{colors.ink-dim}` (etykiety pól,
-  nieaktywna nawigacja), `{colors.ink-faint}` (metadane, podpisy, stany puste).
+  metadane, podpisy, stany puste, nieaktywna nawigacja — koń roboczy
+  wyciszonego tekstu w całym systemie). `{colors.ink-faint}` **nie jest już
+  tokenem tekstowym** — zmierzony kontrast 3.67:1 na płycie i 4.35:1 na
+  czerni nie przechodzi progu 4.5:1 dla tekstu (WCAG 1.4.3). Pierwotna wersja
+  tego dokumentu przypisywała mu metadane/podpisy/stany puste; to była
+  pomyłka, poprawiona po zmierzeniu, nie po wyglądzie. Token zostaje wyłącznie
+  dla grafiki (ikony w stanach pustych, próg 3:1), gdzie nadal się mieści.
 
 ### Named Rules
 
@@ -254,7 +260,8 @@ przyrząd nie ma charakteru pisma.
 - **Body** (400, 0.875rem): koń roboczy całego interfejsu — treść zadań,
   decyzje, wartości pól, przyciski. Ok. 70% tekstu w aplikacji.
 - **Label** (500, 0.75rem): etykiety pól, badge'e, metadane, podpisy pod
-  wynikami. Zawsze w `{colors.ink-dim}` lub `{colors.ink-faint}`.
+  wynikami. Zawsze w `{colors.ink-dim}` — `{colors.ink-faint}` nie niesie już
+  tekstu, patrz Colors → Neutral.
 
 ### Named Rules
 
@@ -371,7 +378,7 @@ pojemnika, który jest klikalny, jest błędem systemu.
   w `{colors.signal-bright}`. Pierścień jest jedynym elementem systemu
   o grubości 2px — fokus ma być nie do przeoczenia
 - **Etykieta:** zawsze **nad** polem, rozmiar `label`, kolor
-  `{colors.ink-dim}` lub `{colors.ink-faint}`, odstęp `0.25rem`
+  `{colors.ink-dim}`, odstęp `0.25rem`
 - **Kontrolki natywne:** checkbox i radio dostają `accent-color`
   `{colors.signal-bright}`; ikona kalendarza w polu daty jest odwracana
   filtrem i wygaszana do 60% krycia

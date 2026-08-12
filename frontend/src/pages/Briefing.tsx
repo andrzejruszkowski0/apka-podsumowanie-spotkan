@@ -113,9 +113,9 @@ function Briefing() {
 
       {preview.kind === "ok" && (
         <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3">
-          <p className="text-xs uppercase tracking-wide text-zinc-500">Temat maila</p>
+          <p className="text-xs uppercase tracking-wide text-zinc-400">Temat maila</p>
           <p className="mb-3 text-zinc-100">{preview.preview.subject}</p>
-          <p className="text-xs uppercase tracking-wide text-zinc-500">Treść</p>
+          <p className="text-xs uppercase tracking-wide text-zinc-400">Treść</p>
           <pre className="whitespace-pre-wrap font-sans text-sm text-zinc-100">{preview.preview.body}</pre>
 
           <div className="mt-4 flex items-center gap-3">

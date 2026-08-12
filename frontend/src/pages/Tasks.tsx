@@ -191,7 +191,7 @@ function Tasks({ navigate }: { navigate: (to: string) => void }) {
         <div className="overflow-x-auto rounded-xl border border-zinc-800 bg-zinc-900">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-zinc-800 text-left text-xs uppercase tracking-wide text-zinc-500">
+              <tr className="border-b border-zinc-800 text-left text-xs uppercase tracking-wide text-zinc-400">
                 <th className="px-4 py-2.5">Zrobione</th>
                 <th className="px-4 py-2.5">Zadanie</th>
                 <th className="px-4 py-2.5">Temat</th>

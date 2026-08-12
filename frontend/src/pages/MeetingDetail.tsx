@@ -267,11 +267,11 @@ function MeetingDetail({
     <div className="flex flex-col gap-4">
       <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 sm:px-8 py-6">
         <h1 className="text-xl font-semibold tracking-tight text-white">{meeting.title}</h1>
-        <p className="text-sm text-zinc-500">
+        <p className="text-sm text-zinc-400">
           {meeting.meeting_date} · {meeting.source_type === "audio" ? "audio" : "tekst"}
         </p>
         <div className="mt-3 flex items-center gap-2">
-          <span className="text-sm text-zinc-500">Status:</span>
+          <span className="text-sm text-zinc-400">Status:</span>
           <Badge
             tone={
               meeting.status === "failed"
@@ -305,7 +305,7 @@ function MeetingDetail({
       <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 sm:px-8 py-6">
         <h2 className="mb-3 font-medium text-zinc-100">Transkrypt</h2>
         {meeting.transcript_parts.length === 0 ? (
-          <p className="text-zinc-500">Transkrypt jeszcze niedostępny.</p>
+          <p className="text-zinc-400">Transkrypt jeszcze niedostępny.</p>
         ) : (
           <pre className="whitespace-pre-wrap font-sans text-sm text-zinc-300">
             {meeting.transcript}

@@ -68,7 +68,7 @@ function Settings() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <h2 className="font-medium text-zinc-100">Sync osób z arkusza</h2>
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-zinc-400">
               Wczytuje arkusz „Osoby” i aktualizuje listę (upsert po emailu).
             </p>
           </div>
@@ -117,7 +117,7 @@ function Settings() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-zinc-800 text-xs uppercase tracking-wide text-zinc-500">
+                <tr className="border-b border-zinc-800 text-xs uppercase tracking-wide text-zinc-400">
                   <th className="py-2 pr-4 font-medium">Imię i nazwisko</th>
                   <th className="py-2 pr-4 font-medium">Email</th>
                   <th className="py-2 pr-4 font-medium">Aliasy</th>

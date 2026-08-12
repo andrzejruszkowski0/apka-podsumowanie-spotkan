@@ -117,7 +117,7 @@ function PersonChecklist({
   return (
     <div className="flex flex-col gap-1">
       {rawNames.length > 0 && (
-        <p className="text-xs text-zinc-500">AI wskazało: {rawNames.join(", ")}</p>
+        <p className="text-xs text-zinc-400">AI wskazało: {rawNames.join(", ")}</p>
       )}
       <div className="flex flex-wrap gap-2">
         {people.map((p) => (
@@ -179,7 +179,7 @@ function TaskCard({
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-3">
-        <label className="flex items-center gap-1 text-xs text-zinc-500">
+        <label className="flex items-center gap-1 text-xs text-zinc-400">
           Deadline
           <input
             type="date"
@@ -197,7 +197,7 @@ function TaskCard({
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-3">
-        <label className="flex flex-col gap-1 text-xs text-zinc-500">
+        <label className="flex flex-col gap-1 text-xs text-zinc-400">
           R (wykonawca)
           <PersonSelect
             value={task.raci.R.person_id}
@@ -206,7 +206,7 @@ function TaskCard({
             rawLabel={task.raci.R.raw}
           />
         </label>
-        <label className="flex flex-col gap-1 text-xs text-zinc-500">
+        <label className="flex flex-col gap-1 text-xs text-zinc-400">
           A (odpowiedzialny)
           <PersonSelect
             value={task.raci.A.person_id}
@@ -219,7 +219,7 @@ function TaskCard({
 
       <div className="mt-3 grid grid-cols-2 gap-3">
         <div>
-          <span className="text-xs text-zinc-500">C (konsultowani)</span>
+          <span className="text-xs text-zinc-400">C (konsultowani)</span>
           <PersonChecklist
             selected={task.raci.C.person_ids}
             onChange={(ids) => onChange({ ...task, raci: { ...task.raci, C: { ...task.raci.C, person_ids: ids } } })}
@@ -228,7 +228,7 @@ function TaskCard({
           />
         </div>
         <div>
-          <span className="text-xs text-zinc-500">I (informowani)</span>
+          <span className="text-xs text-zinc-400">I (informowani)</span>
           <PersonChecklist
             selected={task.raci.I.person_ids}
             onChange={(ids) => onChange({ ...task, raci: { ...task.raci, I: { ...task.raci.I, person_ids: ids } } })}
@@ -240,7 +240,7 @@ function TaskCard({
 
       {task.quote && (
         <details className="mt-2">
-          <summary className="cursor-pointer text-xs text-zinc-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+          <summary className="cursor-pointer text-xs text-zinc-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
             Cytat uzasadniający
           </summary>
           <p className="mt-1 text-xs italic text-zinc-400">„{task.quote}”</p>
@@ -290,7 +290,7 @@ function DecisionCard({
       </div>
 
       <div className="mt-2 flex flex-wrap items-center gap-3">
-        <label className="flex items-center gap-1 text-xs text-zinc-500">
+        <label className="flex items-center gap-1 text-xs text-zinc-400">
           Data
           <input
             type="date"
@@ -299,7 +299,7 @@ function DecisionCard({
             className={inputClass}
           />
         </label>
-        <label className="flex items-center gap-1 text-xs text-zinc-500">
+        <label className="flex items-center gap-1 text-xs text-zinc-400">
           Kategoria
           <input
             type="text"
@@ -316,7 +316,7 @@ function DecisionCard({
         )}
       </div>
 
-      <label className="mt-3 flex flex-col gap-1 text-xs text-zinc-500">
+      <label className="mt-3 flex flex-col gap-1 text-xs text-zinc-400">
         Kto zdecydował
         <PersonSelect
           value={decision.decided_by.person_id}
@@ -328,7 +328,7 @@ function DecisionCard({
 
       {decision.quote && (
         <details className="mt-2">
-          <summary className="cursor-pointer text-xs text-zinc-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
+          <summary className="cursor-pointer text-xs text-zinc-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
             Cytat uzasadniający
           </summary>
           <p className="mt-1 text-xs italic text-zinc-400">„{decision.quote}”</p>
@@ -485,11 +485,11 @@ function Review({ meetingId, navigate }: { meetingId: string; navigate: (to: str
       {saveError && <p className="text-sm text-red-400">Błąd: {saveError}</p>}
 
       <section>
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-zinc-500">
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-zinc-400">
           Zadania ({tasks.length})
         </h2>
         <div className="flex flex-col gap-3">
-          {tasks.length === 0 && <p className="text-sm text-zinc-500">Brak zadań.</p>}
+          {tasks.length === 0 && <p className="text-sm text-zinc-400">Brak zadań.</p>}
           {tasks.map((t) => (
             <TaskCard
               key={t.id}
@@ -503,11 +503,11 @@ function Review({ meetingId, navigate }: { meetingId: string; navigate: (to: str
       </section>
 
       <section>
-        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-zinc-500">
+        <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-zinc-400">
           Decyzje ({decisions.length})
         </h2>
         <div className="flex flex-col gap-3">
-          {decisions.length === 0 && <p className="text-sm text-zinc-500">Brak decyzji.</p>}
+          {decisions.length === 0 && <p className="text-sm text-zinc-400">Brak decyzji.</p>}
           {decisions.map((d) => (
             <DecisionCard
               key={d.id}

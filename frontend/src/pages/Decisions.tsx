@@ -132,7 +132,7 @@ function Decisions({ navigate }: { navigate: (to: string) => void }) {
       </div>
 
       {activeQuery && (
-        <p className="text-sm text-zinc-500">Wyniki wyszukiwania semantycznego dla „{activeQuery}”.</p>
+        <p className="text-sm text-zinc-400">Wyniki wyszukiwania semantycznego dla „{activeQuery}”.</p>
       )}
 
       {state.kind === "loading" && <LoadingState />}
@@ -169,7 +169,7 @@ function Decisions({ navigate }: { navigate: (to: string) => void }) {
           {decisions.map((d) => (
             <div key={d.id} className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3">
               <p className="text-zinc-100">{d.statement}</p>
-              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-zinc-400">
                 <span>{d.decided_on}</span>
                 {d.topic_name && <span>· {d.topic_name}</span>}
                 {d.category && <Badge tone="neutral">{d.category}</Badge>}

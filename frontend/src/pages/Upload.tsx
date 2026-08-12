@@ -168,7 +168,7 @@ function Upload({ onCreated }: { onCreated: (meetingId: string) => void }) {
             className={inputClass + " text-zinc-300 file:mr-3 file:rounded file:border-0 file:bg-zinc-800 file:px-3 file:py-1.5 file:text-zinc-100"}
           />
           {files.length > 0 && (
-            <ul className="mt-1 text-sm text-zinc-500">
+            <ul className="mt-1 text-sm text-zinc-400">
               {files.map((f, i) => (
                 <li key={f.name + i}>
                   część {i + 1}: {f.name}

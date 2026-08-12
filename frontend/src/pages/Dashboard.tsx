@@ -167,7 +167,7 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
                 {auth.me.display_name ?? auth.me.email}
               </span>
             </p>
-            <p className="text-sm text-zinc-500">{auth.me.email}</p>
+            <p className="text-sm text-zinc-400">{auth.me.email}</p>
             <p className="mt-2 flex items-center gap-2 text-sm text-zinc-400">
               Dostęp do Gmail/Sheets:
               {auth.me.reauth_required ? (
@@ -186,7 +186,7 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
       </div>
 
       <div className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 sm:px-8 py-6">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500">
+        <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-400">
           Ostatnie spotkania
         </h2>
         {meetings.kind === "loading" && <LoadingState />}
@@ -221,7 +221,7 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
                   className="flex items-center justify-between gap-4 py-2.5 text-sm hover:text-white"
                 >
                   <span className="text-zinc-100">{m.title}</span>
-                  <span className="flex items-center gap-2 text-zinc-500">
+                  <span className="flex items-center gap-2 text-zinc-400">
                     {m.meeting_date}
                     <MeetingStatusBadge status={m.status} />
                   </span>
