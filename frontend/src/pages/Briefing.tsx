@@ -1,5 +1,7 @@
+import { Eye, PaperPlaneTilt } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { apiFetch, errorDetail } from "../lib/api";
+import { btnPrimary } from "../lib/styles";
 
 type Topic = { id: string; name: string; kind: string; notes: string | null };
 
@@ -100,8 +102,9 @@ function Briefing() {
         <button
           onClick={generatePreview}
           disabled={!topicId || preview.kind === "loading"}
-          className="rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:opacity-50"
+          className={"flex items-center gap-1.5 " + btnPrimary}
         >
+          <Eye size={16} weight="bold" />
           {preview.kind === "loading" ? "Generuję…" : "Podgląd"}
         </button>
       </div>
@@ -119,8 +122,9 @@ function Briefing() {
             <button
               onClick={sendBriefing}
               disabled={send.kind === "loading" || send.kind === "done"}
-              className="rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:opacity-50"
+              className={"flex items-center gap-1.5 " + btnPrimary}
             >
+              <PaperPlaneTilt size={16} weight="bold" />
               {send.kind === "loading" ? "Wysyłam…" : send.kind === "done" ? "Wysłano" : "Wyślij"}
             </button>
             {send.kind === "error" && <p className="text-sm text-red-400">Błąd: {send.message}</p>}

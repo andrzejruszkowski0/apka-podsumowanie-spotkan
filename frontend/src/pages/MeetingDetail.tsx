@@ -1,5 +1,8 @@
+import { ArrowRight, Eye, PaperPlaneTilt } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { apiFetch, errorDetail } from "../lib/api";
+import { Badge } from "../components/Badge";
+import { btnPrimary } from "../lib/styles";
 
 type TranscriptPart = { part_index: number; content: string };
 
@@ -136,8 +139,9 @@ function DraftPanel({ meetingId }: { meetingId: string }) {
         <button
           onClick={generatePreview}
           disabled={draft.kind === "loading"}
-          className="rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:opacity-50"
+          className={"flex items-center gap-1.5 " + btnPrimary}
         >
+          <Eye size={16} weight="bold" />
           {draft.kind === "loading" ? "Generuję…" : "Podgląd"}
         </button>
       </div>
@@ -186,8 +190,9 @@ function DraftPanel({ meetingId }: { meetingId: string }) {
             <button
               onClick={sendDraft}
               disabled={!to.trim() || send.kind === "loading" || send.kind === "done"}
-              className="rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:opacity-50"
+              className={"flex items-center gap-1.5 " + btnPrimary}
             >
+              <PaperPlaneTilt size={16} weight="bold" />
               {send.kind === "loading" ? "Wysyłam…" : send.kind === "done" ? "Wysłano" : "Wyślij"}
             </button>
           </div>
@@ -256,20 +261,20 @@ function MeetingDetail({
         <p className="text-sm text-zinc-500">
           {meeting.meeting_date} · {meeting.source_type === "audio" ? "audio" : "tekst"}
         </p>
-        <p className="mt-3 text-zinc-300">
-          Status:{" "}
-          <span
-            className={
+        <div className="mt-3 flex items-center gap-2">
+          <span className="text-sm text-zinc-500">Status:</span>
+          <Badge
+            tone={
               meeting.status === "failed"
-                ? "font-medium text-red-400"
+                ? "negative"
                 : POLLING_STATUSES.has(meeting.status)
-                  ? "font-medium text-amber-400"
-                  : "font-medium text-emerald-400"
+                  ? "warning"
+                  : "positive"
             }
           >
             {STATUS_LABELS[meeting.status] ?? meeting.status}
-          </span>
-        </p>
+          </Badge>
+        </div>
         {meeting.error_message && (
           <p className="mt-2 text-sm text-red-400">{meeting.error_message}</p>
         )}
@@ -280,9 +285,10 @@ function MeetingDetail({
               e.preventDefault();
               navigate(`/meetings/${meeting.id}/review`);
             }}
-            className="mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500"
+            className={"mt-4 inline-flex items-center gap-1.5 " + btnPrimary}
           >
             Przejdź do weryfikacji
+            <ArrowRight size={16} weight="bold" />
           </a>
         )}
       </div>

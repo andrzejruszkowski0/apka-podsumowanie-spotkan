@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { btnPrimary } from "../lib/styles";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -53,11 +54,7 @@ function Login() {
             />
           </label>
           {error && <p className="text-sm text-red-400">{error}</p>}
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-2 rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:opacity-50"
-          >
+          <button type="submit" disabled={loading} className={"mt-2 " + btnPrimary}>
             {loading ? "Loguję…" : "Zaloguj się"}
           </button>
         </div>

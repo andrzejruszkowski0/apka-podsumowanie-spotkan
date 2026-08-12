@@ -1,5 +1,7 @@
+import { Check, Trash } from "@phosphor-icons/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { apiFetch } from "../lib/api";
+import { btnPrimary } from "../lib/styles";
 
 type Person = { id: string; full_name: string; email: string; aliases: string[]; org: string | null };
 
@@ -173,8 +175,9 @@ function TaskCard({
         />
         <button
           onClick={onDelete}
-          className="shrink-0 rounded-md border border-zinc-700 px-2 py-1 text-xs text-zinc-300 hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex shrink-0 items-center gap-1 rounded-md border border-zinc-700 px-2 py-1 text-xs text-zinc-300 transition-transform hover:bg-zinc-800 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
+          <Trash size={12} weight="bold" />
           Usuń
         </button>
       </div>
@@ -283,8 +286,9 @@ function DecisionCard({
         />
         <button
           onClick={onDelete}
-          className="shrink-0 rounded-md border border-zinc-700 px-2 py-1 text-xs text-zinc-300 hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex shrink-0 items-center gap-1 rounded-md border border-zinc-700 px-2 py-1 text-xs text-zinc-300 transition-transform hover:bg-zinc-800 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
+          <Trash size={12} weight="bold" />
           Usuń
         </button>
       </div>
@@ -468,9 +472,10 @@ function Review({ meetingId, navigate }: { meetingId: string; navigate: (to: str
         <button
           onClick={approve}
           disabled={saving || anyUnresolved}
-          className="rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={"flex items-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500 " + btnPrimary}
           title={anyUnresolved ? "Rozwiąż wszystkie nazwiska przed zatwierdzeniem" : undefined}
         >
+          <Check size={16} weight="bold" />
           {saving ? "Zapisywanie…" : "Zatwierdź i zapisz"}
         </button>
       </div>

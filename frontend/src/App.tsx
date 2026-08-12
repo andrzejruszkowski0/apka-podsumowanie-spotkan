@@ -1,4 +1,5 @@
 import type { Session } from "@supabase/supabase-js";
+import { SignOut } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import Briefing from "./pages/Briefing";
 import Dashboard from "./pages/Dashboard";
@@ -139,8 +140,9 @@ function App() {
         </NavLink>
         <button
           onClick={() => supabase.auth.signOut()}
-          className="ml-auto rounded-md px-3 py-1.5 text-sm font-medium text-zinc-400 hover:text-zinc-100"
+          className="ml-auto flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-zinc-400 transition-transform hover:text-zinc-100 active:scale-[0.98]"
         >
+          <SignOut size={16} weight="bold" />
           Wyloguj
         </button>
       </nav>

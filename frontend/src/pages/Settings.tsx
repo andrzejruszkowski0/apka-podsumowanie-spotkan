@@ -1,5 +1,7 @@
+import { ArrowsClockwise } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { apiFetch } from "../lib/api";
+import { btnPrimary } from "../lib/styles";
 
 type Person = {
   id: string;
@@ -77,8 +79,9 @@ function Settings() {
           <button
             onClick={runSync}
             disabled={sync.kind === "loading"}
-            className="shrink-0 rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:opacity-50"
+            className={"flex shrink-0 items-center gap-1.5 " + btnPrimary}
           >
+            <ArrowsClockwise size={16} weight="bold" className={sync.kind === "loading" ? "animate-spin" : undefined} />
             {sync.kind === "loading" ? "Synchronizuję…" : "Sync teraz"}
           </button>
         </div>

@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { API_URL, apiFetch } from "../lib/api";
+import { btnPrimary, btnSecondary } from "../lib/styles";
+import { Badge, MeetingStatusBadge } from "../components/Badge";
 
 type HealthState =
   | { kind: "loading" }
@@ -117,10 +119,7 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
         )}
         {auth.kind === "anonymous" && (
           <div className="flex flex-col items-start gap-2">
-            <a
-              href={`${API_URL}/auth/login`}
-              className="inline-block rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500"
-            >
+            <a href={`${API_URL}/auth/login`} className={"inline-block " + btnPrimary}>
               Zaloguj się przez Google
             </a>
             <p className="max-w-sm text-xs text-zinc-500">
@@ -144,22 +143,17 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
               </span>
             </p>
             <p className="text-sm text-zinc-500">{auth.me.email}</p>
-            <p className="mt-2 text-sm text-zinc-400">
-              Dostęp do Gmail/Sheets:{" "}
+            <p className="mt-2 flex items-center gap-2 text-sm text-zinc-400">
+              Dostęp do Gmail/Sheets:
               {auth.me.reauth_required ? (
-                <span className="font-medium text-red-400">
-                  wymaga ponownej zgody
-                </span>
+                <Badge tone="negative">wymaga ponownej zgody</Badge>
               ) : auth.me.google_connected ? (
-                <span className="font-medium text-emerald-400">aktywny</span>
+                <Badge tone="positive">aktywny</Badge>
               ) : (
-                <span className="text-zinc-500">nieznany</span>
+                <Badge tone="neutral">nieznany</Badge>
               )}
             </p>
-            <button
-              onClick={logout}
-              className="mt-4 rounded-md border border-zinc-700 px-4 py-2 text-zinc-300 hover:bg-zinc-800"
-            >
+            <button onClick={logout} className={"mt-4 " + btnSecondary}>
               Wyloguj
             </button>
           </div>
@@ -203,8 +197,9 @@ function Dashboard({ navigate }: { navigate: (to: string) => void }) {
                   className="flex items-center justify-between gap-4 py-2.5 text-sm hover:text-white"
                 >
                   <span className="text-zinc-100">{m.title}</span>
-                  <span className="text-zinc-500">
-                    {m.meeting_date} · {m.status}
+                  <span className="flex items-center gap-2 text-zinc-500">
+                    {m.meeting_date}
+                    <MeetingStatusBadge status={m.status} />
                   </span>
                 </a>
               </li>

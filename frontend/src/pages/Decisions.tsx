@@ -1,5 +1,8 @@
+import { MagnifyingGlass, X } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { apiFetch } from "../lib/api";
+import { Badge } from "../components/Badge";
+import { btnPrimarySm, btnSecondarySm } from "../lib/styles";
 
 type Topic = { id: string; name: string; kind: string; notes: string | null };
 
@@ -102,18 +105,17 @@ function Decisions() {
             placeholder="Szukaj semantycznie…"
             className="rounded-md border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <button
-            type="submit"
-            className="rounded-md bg-blue-600 px-3 py-1 text-sm font-medium text-white hover:bg-blue-500"
-          >
+          <button type="submit" className={"flex items-center gap-1.5 " + btnPrimarySm}>
+            <MagnifyingGlass size={14} weight="bold" />
             Szukaj
           </button>
           {activeQuery && (
             <button
               type="button"
               onClick={clearSearch}
-              className="rounded-md border border-zinc-700 px-3 py-1 text-sm text-zinc-300 hover:bg-zinc-800"
+              className={"flex items-center gap-1.5 " + btnSecondarySm}
             >
+              <X size={14} weight="bold" />
               Wyczyść
             </button>
           )}
@@ -134,10 +136,10 @@ function Decisions() {
           {decisions.map((d) => (
             <div key={d.id} className="rounded-xl border border-zinc-800 bg-zinc-900 px-4 py-3">
               <p className="text-zinc-100">{d.statement}</p>
-              <div className="mt-2 flex flex-wrap gap-3 text-xs text-zinc-500">
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-zinc-500">
                 <span>{d.decided_on}</span>
                 {d.topic_name && <span>· {d.topic_name}</span>}
-                {d.category && <span>· {d.category}</span>}
+                {d.category && <Badge tone="neutral">{d.category}</Badge>}
                 {d.decided_by && <span>· zdecydował: {d.decided_by}</span>}
               </div>
             </div>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { apiFetch } from "../lib/api";
+import { TaskStatusBadge } from "../components/Badge";
 
 type Topic = { id: string; name: string; kind: string; notes: string | null };
 
@@ -186,7 +187,9 @@ function Tasks() {
                   >
                     {t.deadline ?? "—"}
                   </td>
-                  <td className="px-4 py-2.5 text-zinc-400">{t.status}</td>
+                  <td className="px-4 py-2.5">
+                    <TaskStatusBadge status={t.status} />
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -1,5 +1,7 @@
+import { UploadSimple } from "@phosphor-icons/react";
 import { useCallback, useEffect, useState } from "react";
 import { apiFetch } from "../lib/api";
+import { btnPrimary } from "../lib/styles";
 
 type Topic = { id: string; name: string; kind: string; notes: string | null };
 
@@ -198,8 +200,9 @@ function Upload({ onCreated }: { onCreated: (meetingId: string) => void }) {
       <button
         type="submit"
         disabled={submit.kind === "submitting"}
-        className="self-start rounded-md bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-500 disabled:opacity-50"
+        className={"flex items-center gap-1.5 self-start " + btnPrimary}
       >
+        <UploadSimple size={16} weight="bold" />
         {submit.kind === "submitting" ? "Wysyłanie…" : "Prześlij i rozpocznij transkrypcję"}
       </button>
     </form>
