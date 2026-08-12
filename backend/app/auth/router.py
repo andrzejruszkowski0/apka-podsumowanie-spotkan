@@ -22,10 +22,18 @@ from app.auth.tokens import get_valid_access_token
 from app.config import settings
 from app.db import get_db
 from app.models import oauth_token
+from app.security.csrf import get_or_create_token
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+
+
+@router.get("/csrf")
+def csrf(request: Request) -> dict[str, str]:
+    """Token CSRF dla frontendu. Zakłada sesję, jeśli jej jeszcze nie ma —
+    inaczej pierwszy POST (np. /auth/demo-login) nie miałby czego odesłać."""
+    return {"csrf_token": get_or_create_token(request)}
 
 
 @router.get("/login")
@@ -90,7 +98,11 @@ def demo_login(request: Request, db: Session = Depends(get_db)) -> dict[str, str
 @router.post("/logout")
 def logout(request: Request) -> dict[str, str]:
     request.session.clear()
-    return {"status": "ok"}
+    # Świeży token po wyczyszczeniu sesji: front trzyma stary w pamięci, a bez
+    # tego jego następny POST (np. ponowne demo-login) dostałby 403. Nowa
+    # wartość zamiast przeniesienia starej — token sprzed wylogowania nie
+    # powinien zostawać ważny.
+    return {"status": "ok", "csrf_token": get_or_create_token(request)}
 
 
 @router.get("/me")

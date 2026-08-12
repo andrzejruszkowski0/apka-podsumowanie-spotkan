@@ -21,6 +21,7 @@ from app.meetings.router import router as meetings_router
 from app.notifications.reminders import catch_up_if_needed, run_daily_reminders
 from app.people.router import router as people_router
 from app.people.sync import sync_people_on_startup
+from app.security.csrf import CsrfMiddleware
 from app.tasks.router import router as tasks_router
 from app.topics import router as topics_router
 
@@ -62,6 +63,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(title="Analiza spotkań", lifespan=lifespan)
+
+# Kolejność ma znaczenie: add_middleware dokłada na zewnątrz, więc dodany jako
+# pierwszy CsrfMiddleware jest najbardziej wewnętrzny. Dzięki temu preflight
+# OPTIONS obsługuje CORS przed nim, a sesja (SessionMiddleware, dodany na
+# końcu) jest już wczytana, gdy sprawdzamy token.
+app.add_middleware(CsrfMiddleware)
 
 app.add_middleware(
     CORSMiddleware,

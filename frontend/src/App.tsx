@@ -10,7 +10,7 @@ import Review from "./pages/Review";
 import Settings from "./pages/Settings";
 import Tasks from "./pages/Tasks";
 import Upload from "./pages/Upload";
-import { apiFetch } from "./lib/api";
+import { apiFetch, resetCsrfToken } from "./lib/api";
 import { supabase } from "./lib/supabaseClient";
 
 function useSession(): Session | null | undefined {
@@ -92,6 +92,7 @@ function App() {
     await apiFetch("/auth/logout", { method: "POST" }).catch(() => {
       // Sesja backendu mogła już wygasnąć — wylogowanie z Supabase i tak ma się udać.
     });
+    resetCsrfToken();
     await supabase.auth.signOut();
   }, []);
 
